@@ -1,17 +1,19 @@
 import React from 'react'
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 
 // Componente principal de registro de usuario
 export default function SignIn() {
     // Estado para almacenar los datos del formulario
     const [formData, setFormData] = useState({});
-    // Estado para manejar errores
-    const [error, setError] = useState(null);
-    // Estado para manejar el estado de carga
-    const [loading, setLoading] = useState(false);
+    // Hook para acceder al estado de Redux
+    const { loading, error } = useSelector((state) => state.user);
     // Hook para la navegación programática
     const navigate = useNavigate();
+    // Hook para despachar acciones de Redux
+    const dispatch = useDispatch();
 
     // Función para manejar los cambios en los campos del formulario
     const handleChange = (e) => {
@@ -25,8 +27,9 @@ export default function SignIn() {
     const handleSubmit = async (e) => {
       e.preventDefault();
       try {
-        // Establecer el estado de carga a verdadero
-        setLoading(true);
+        
+        // Despachar la acción de inicio de sesión
+        dispatch(signInStart());
         // Enviar una solicitud POST a la API de registro
         const res = await fetch('/api/auth/signin', 
           {
@@ -42,17 +45,17 @@ export default function SignIn() {
         console.log(data);
         // Manejar el caso en que la respuesta indique un error
         if(data.success === false){
-          setLoading(false);
-          setError(data.message);
+          // Despachar la acción de fallo de inicio de sesión
+          dispatch(signInFailure(data.message));
           return;
         }
-        setLoading(false);
-        setError(null);
+        // Despachar la acción de éxito de inicio de sesión
+        dispatch(signInSuccess(data));
         navigate('/');
 
       } catch (error) {
-        setLoading(false);
-        setError(error.message);
+        // Despachar la acción de fallo de inicio de sesión
+        dispatch(signInFailure(error.message));
       }
     };
     return (
