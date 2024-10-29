@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
+import OAuth from '../components/OAuth';
 
 // Componente principal de registro de usuario
 export default function SignUp() {
@@ -70,7 +71,9 @@ export default function SignUp() {
           className='border p-3 rounded-lg' id='password' onChange={handleChange}/>
           {/* Botones */}
           <button disabled={loading} className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'>
-            {loading ? 'Loading...' : 'Sign up'}</button>
+            {loading ? 'Loading...' : 'Sign up'}
+          </button>
+          <OAuth/>
         </form>
         <div className='flex gap-2 mt-5'>
           <p>Ya tienes una cuenta?</p>
