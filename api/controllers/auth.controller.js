@@ -37,6 +37,20 @@ export const signin = async (req, res, next) => {
     }
 };
 
+/*
+ * Controlador para la autenticación de usuarios a través de Google.
+ * 
+ * @param {Object} req - Objeto de solicitud HTTP.
+ * @param {Object} res - Objeto de respuesta HTTP.
+ * @param {Function} next - Función para pasar al siguiente middleware.
+ * 
+ * @description Este controlador maneja la autenticación de usuarios utilizando Google. 
+ * Si el usuario ya existe en la base de datos, se genera un token JWT y se envía en una cookie.
+ * Si el usuario no existe, se crea un nuevo usuario con una contraseña generada aleatoriamente,
+ * se guarda en la base de datos, se genera un token JWT y se envía en una cookie.
+ * 
+ * @throws {Error} Si ocurre un error durante el proceso de autenticación.
+ */
 export const google = async (req, res, next) => {
     try {
         const user = await User.findOne({ email: req.body.email });
