@@ -8,7 +8,7 @@ const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "heulib.firebaseapp.com",
   projectId: "heulib",
-  storageBucket: "heulib.appspot.com",
+  storageBucket: "heulib.firebasestorage.app",
   messagingSenderId: "386959784950",
   appId: "1:386959784950:web:ca32b10737168ca25fa5d7"
 };
