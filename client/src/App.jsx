@@ -6,6 +6,7 @@ import About from './pages/About';
 import Profile from './pages/Profile';
 import CustomHeader from './components/CustomHeader';
 import PrivateRoute from './components/PrivateRoute';
+import Dashboard from './pages/Dashboard';
 
 
 
@@ -19,6 +20,7 @@ export default function App() {
       <Route path="/about" element={<About />} /> 
       <Route element={<PrivateRoute />} >
       <Route path="/profile" element={<Profile />} /> 
+      <Route path="/dashboard" element={<Dashboard />} /> 
       </Route>
 
     </Routes>
