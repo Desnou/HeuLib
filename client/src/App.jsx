@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import CustomHeader from './components/CustomHeader';
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './pages/Dashboard';
+import SignIn2 from './pages/SignIn2';
 
 
 
@@ -15,7 +16,7 @@ export default function App() {
   <CustomHeader />
     <Routes>
       <Route path="/" element={<Home />} /> 
-      <Route path="/sign-in" element={<Signin />} /> 
+      <Route path="/sign-in" element={<SignIn2 />} /> 
       <Route path="/sign-up" element={<SignUp />} /> 
       <Route path="/about" element={<About />} /> 
       <Route element={<PrivateRoute />} >
