@@ -1,14 +1,13 @@
 import { AiOutlineSearch } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Button, Navbar, TextInput } from "flowbite-react";
+import { Avatar, Button, Dropdown, DropdownHeader, DropdownItem, Navbar, TextInput } from "flowbite-react";
 
 export default function CustomHeader() {
   const { currentUser } = useSelector((state) => state.user);
   const path = useLocation().pathname;
   return (
     <Navbar className="border-b-2 ">
-        {/* {flex justify-between items-center max-w-6xl mx-auto p-3} */}
         <Link
           to="/"
           className="self-center whitespace-nowrap text-sm sm:text-xl font-semibold"
@@ -29,29 +28,36 @@ export default function CustomHeader() {
         <Button className="w-12 h-10 lg:hidden" color="gray" pill>
           <AiOutlineSearch />
         </Button>
-        {/* <ul className="flex gap-4">
-          <Link to="/">
-            <li className="hidden sm:inline text-slate-700 hover:underline">
-              Home
-            </li>
-          </Link>
-          <Link to="/about">
-            <li className="hidden sm:inline text-slate-700 hover:underline">
-              About
-            </li>
-          </Link> */}
           <div className="flex gap-2 md:order-2">
           <Link to="/profile">
             {currentUser ? (
-              <img
-                className="rounded-full h-7 w-7  object-cover"
-                src={currentUser.avatar}
-                alt="Profile"
-              />
+              <Dropdown
+              arrowIcon={false}
+              inline
+              label={
+                <Avatar
+                  alt="user"
+                  img={currentUser.avatar}
+                  rounded
+                />
+              }
+              >
+                <DropdownHeader>
+                  <span className="block text-sm">@{currentUser.username}</span>
+                  <span className="block text-sm font-medium truncate">@{currentUser.email}</span>
+                </DropdownHeader>
+                <Link to={'dashboard?tab=profile'}>
+                  <Dropdown.Item>Perfil</Dropdown.Item>
+                </Link>
+                <Dropdown.Divider />
+                <Dropdown.Item>Desconectar</Dropdown.Item>
+              </Dropdown>
             ) : (
+            <Link to ='/sign-in'>
               <Button gradientDuoTone="purpleToBlue" outline>
                 Sign In
               </Button>
+            </Link>
             )}
           </Link>
           <Navbar.Toggle/>
@@ -69,7 +75,6 @@ export default function CustomHeader() {
               </Link>
             </Navbar.Link>
           </Navbar.Collapse>
-        {/* </ul> */}
     </Navbar>
   );
 }

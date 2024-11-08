@@ -3,41 +3,49 @@ import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
+import { Button } from "flowbite-react";
+import { AiFillGoogleCircle } from "react-icons/ai";
 
 export default function OAuth() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-  const handleGoogleClick = async () => {
+    const handleGoogleClick = async () => {
     try {
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({prompt: 'select_account'});
       const auth = getAuth(app);
 
-      const result = await signInWithPopup(auth, provider);
+      const resultsFromGoogle = await signInWithPopup(auth, provider);
       const res = await fetch("/api/auth/google", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: result.user.displayName,
-          email: result.user.email,
-          photo: result.user.photoURL,
+          name: resultsFromGoogle.user.displayName,
+          email: resultsFromGoogle.user.email,
+          photo: resultsFromGoogle.user.photoURL,
         }),
       });
-      const data = await res.json();
-      dispatch(signInSuccess(data));
-      navigate("/");
+      const data = await res.json()
+      if (res.ok){
+        dispatch(signInSuccess(data));
+        navigate("/");
+      }
     } catch (error) {
       console.log("Could not sign in with Google", error);
     }
   };
   return (
-    <button
+    <Button
       onClick={handleGoogleClick}
       type="button"
-      className="bg-red-700 text-white p-3 rounded-lg uppercase hover:opacity-95 "
+      gradientDuoTone="pinkToOrange" 
+      outline
+      className="" 
     >
+      <AiFillGoogleCircle className="w-6 h-6 mr-2"/> 
       Continue with google
-    </button>
+    </Button>
   );
 }
