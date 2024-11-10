@@ -89,9 +89,20 @@ export const deleteUser = async (req, res, next) => {
         );
     }
     try {
-      await User.findByIdAndDelete(req.params.userId);
-      res.status(200).json("Usuario eliminado");
+        await User.findByIdAndDelete(req.params.userId);
+        res.status(200).json("Usuario eliminado");
     } catch (error) {
-      next(error);
+        next(error);
+    }
+};
+
+export const signout = (req, res, next) => {
+    try {
+        res
+            .clearCookie("access_token")
+            .status(200)
+            .json("Cierre de sesión exitoso");
+    } catch (error) {
+        next(error);
     }
 };

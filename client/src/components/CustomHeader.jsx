@@ -1,11 +1,29 @@
 import { AiOutlineSearch } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { Avatar, Button, Dropdown, DropdownHeader, DropdownItem, Navbar, TextInput } from "flowbite-react";
+import { useSelector, useDispatch } from "react-redux";
+import { Avatar, Button, Dropdown, DropdownHeader, Navbar, TextInput } from "flowbite-react";
+import { signOutSuccess } from "../redux/user/userSlice";
+
 
 export default function CustomHeader() {
   const { currentUser } = useSelector((state) => state.user);
   const path = useLocation().pathname;
+  const dispatch = useDispatch();
+  const handleSignOut = async () => {
+    try {
+        const res = await fetch('/api/user/signout', {
+            method: "POST",
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            console.log(data.message);
+        } else {
+            dispatch(signOutSuccess());
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+};
   return (
     <Navbar className="border-b-2 ">
         <Link
@@ -50,7 +68,7 @@ export default function CustomHeader() {
                   <Dropdown.Item>Perfil</Dropdown.Item>
                 </Link>
                 <Dropdown.Divider />
-                <Dropdown.Item>Desconectar</Dropdown.Item>
+                <Dropdown.Item onClick={handleSignOut}>Desconectar</Dropdown.Item>
               </Dropdown>
             ) : (
             <Link to ='/sign-in'>
