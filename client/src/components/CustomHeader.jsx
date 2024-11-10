@@ -29,7 +29,7 @@ export default function CustomHeader() {
           <AiOutlineSearch />
         </Button>
           <div className="flex gap-2 md:order-2">
-          <Link to="/profile">
+    
             {currentUser ? (
               <Dropdown
               arrowIcon={false}
@@ -59,7 +59,7 @@ export default function CustomHeader() {
               </Button>
             </Link>
             )}
-          </Link>
+          
           <Navbar.Toggle/>
 
           </div>
