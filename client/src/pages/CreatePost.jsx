@@ -1,4 +1,11 @@
-import { Button, Datepicker, Dropdown, FileInput, Select, TextInput } from "flowbite-react";
+import {
+    Button,
+    Datepicker,
+    Dropdown,
+    FileInput,
+    Select,
+    TextInput,
+} from "flowbite-react";
 import React from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
@@ -38,6 +45,7 @@ export default function CreatePost() {
 
                     <Selection
                         placeholder="Selecciona una categoría"
+                        id="category"
                         options={options}
                         value={selectedOptions}
                         onChange={handleChange}
@@ -46,15 +54,14 @@ export default function CreatePost() {
                         closeMenuOnSelect={false}
                     />
                     <TextInput
-                            type="text"
-                            placeholder="Autor"
-                            required
-                            id="autor"
-                            className=""
-                        />
+                        type="text"
+                        placeholder="Autor"
+                        required
+                        id="autor"
+                        className=""
+                    />
                     <div className="flex flex-auto gap-4">
-                        
-                        <Select placeholder="Selecciona una opcion">
+                        <Select id='hasValidation'placeholder="Selecciona una opcion">
                             <option value="uncategorized">
                                 Tiene validacion?
                             </option>
@@ -62,7 +69,11 @@ export default function CreatePost() {
                             <option value="no">No</option>
                             <option value="partial">Parcial</option>
                         </Select>
-                        <Select placeholder="Selecciona una opcion">
+                        <Select
+                            placeholder="Selecciona una opcion"
+                            required
+                            id="heuristicCount"
+                        >
                             <option value="uncategorized">
                                 Cantidad de heuristicas
                             </option>
@@ -73,7 +84,7 @@ export default function CreatePost() {
                             <option value="option5">5</option>
                             <option value="option6">6</option>
                         </Select>
-                        <Datepicker 
+                        <Datepicker
                             placeholder="Fecha de publicación"
                             required
                             id="date"
