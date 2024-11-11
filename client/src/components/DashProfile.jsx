@@ -1,4 +1,5 @@
 import { Alert, Button, Modal, TextInput } from "flowbite-react";
+import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -23,7 +24,7 @@ import {
 import { useDispatch } from "react-redux";
 
 export default function DashProfile() {
-    const { currentUser, error } = useSelector((state) => state.user);
+    const { currentUser, error, loading } = useSelector((state) => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [imageFileUrl, setImageFileUrl] = useState(null);
     const [imageFileUploadProgress, setImageFileUploadProgress] =
@@ -143,7 +144,7 @@ export default function DashProfile() {
 
     const handleSignOut = async () => {
         try {
-            const res = await fetch('/api/user/signout', {
+            const res = await fetch("/api/user/signout", {
                 method: "POST",
             });
             const data = await res.json();
@@ -226,9 +227,25 @@ export default function DashProfile() {
                     placeholder="Contraseña"
                     onChange={handleChange}
                 />
-                <Button type="submit" gradientDuoTone="purpleToPink" outline>
-                    Actualizar
+                <Button
+                    type="submit"
+                    gradientDuoTone="purpleToPink"
+                    outline
+                    disabled={loading || imageFileUploading}
+                >
+                    {loading ? "Cargando..." : "Actualizar"}
                 </Button>
+                {currentUser.isAdmin && (
+                    <Link to={"/create-post"}>
+                        <Button
+                            type="button"
+                            gradientDuoTone="purpleToPink"
+                            className="w-full"
+                        >
+                            Crear una publicación
+                        </Button>
+                    </Link>
+                )}
             </form>
             <div className="text-red-500 flex justify-between mt-5">
                 <span

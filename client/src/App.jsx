@@ -6,6 +6,8 @@ import CustomHeader from './components/CustomHeader';
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './pages/Dashboard';
 import SignIn from './pages/SignIn';
+import PrivateRouteAdmin from './components/PrivateRouteAdmin';
+import CreatePost from './pages/CreatePost';
 
 
 
@@ -19,6 +21,9 @@ export default function App() {
       <Route path="/about" element={<About />} /> 
       <Route element={<PrivateRoute />} >
         <Route path="/dashboard" element={<Dashboard />} /> 
+      </Route>
+      <Route element={<PrivateRouteAdmin />} >
+        <Route path="/create-post" element={<CreatePost />} /> 
       </Route>
 
     </Routes>
