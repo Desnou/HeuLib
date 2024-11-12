@@ -42,7 +42,9 @@ export const getposts = async (req, res, next) => {
         const sortDirection = req.query.order === "asc" ? 1 : -1;
         const posts = await Post.find({
             ...(req.query.userId && { userId: req.query.userId }),
-            ...(req.query.category && { category: { $regex: req.query.category, $options: "i" } }),
+            ...(req.query.category && {
+                category: { $regex: req.query.category, $options: "i" },
+            }),
             ...(req.query.slug && { slug: req.query.slug }),
             ...(req.query.postId && { _id: req.query.postId }),
             ...(req.query.author && { author: req.query.author }),
@@ -82,6 +84,20 @@ export const getposts = async (req, res, next) => {
             createdAt: { $gte: oneMonthAgo },
         });
         res.status(200).json({ posts, totalPosts, lastMonthPosts });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const deletepost = async (req, res, next) => {
+    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+        return next(
+            errorHandler(403, "No estás autorizado para eliminar esta publicación")
+        );
+    }
+    try {
+        await Post.findByIdAndDelete(req.params.postId);
+        res.status(200).json("Publicación eliminada");
     } catch (error) {
         next(error);
     }
