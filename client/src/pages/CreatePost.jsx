@@ -13,6 +13,7 @@ import Selection from "react-select";
 import { useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import { useNavigate } from "react-router-dom";
 import {
     getDownloadURL,
     getStorage,
@@ -22,8 +23,8 @@ import {
 import { app } from "../firebase";
 
 const options = [
-    { value: "chocolate", label: "Games" },
-    { value: "strawberry", label: "Mobile" },
+    { value: "games", label: "Games" },
+    { value: "mobile", label: "Mobile" },
     { value: "systems", label: "Systems" },
     { value: "websites", label: "Websites" },
     { value: "applications", label: "Applications" },
@@ -37,6 +38,9 @@ export default function CreatePost() {
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
     const [formData, setFormData] = useState({});
+    const navigate = useNavigate();
+    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [publishError, setPublishError] = useState(null);
     const handleUploadImage = async () => {
         try {
             if (!file) {
@@ -75,16 +79,40 @@ export default function CreatePost() {
             console.log(error);
         }
     };
-    const [selectedOptions, setSelectedOptions] = useState([]);
-    const handleChange = (selectedOption) => {
+    const handleCategoryChange = (selectedOption) => {
         setSelectedOptions(selectedOption);
+        
+    };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log(formData); // Verificar el contenido de formData antes de enviarlo
+        try {
+            const res = await fetch("/api/post/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setPublishError(data.message);
+                return;
+            }
+            if (res.ok) {
+                setPublishError(null);
+                navigate(`/post/${data.slug}`);
+            }
+        } catch (error) {
+            setPublishError("Error al publicar la publicación");
+        }
     };
     return (
         <div className="p-4 max-w-3xl mx-auto -min-h-screen">
             <h1 className="text-center text-3xl my-7 font-semibold">
                 Crear publicación
             </h1>
-            <form className="flex flex-col gap-4">
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4 sm:flex-col ">
                     <TextInput
                         type="text"
@@ -92,14 +120,26 @@ export default function CreatePost() {
                         required
                         id="title"
                         className="flex-1"
+                        onChange={(e) =>
+                            setFormData({ ...formData, title: e.target.value })
+                        }
                     />
 
                     <Selection
                         placeholder="Selecciona una categoría"
+                        type="string"
                         id="category"
                         options={options}
                         value={selectedOptions}
-                        onChange={handleChange}
+                        onChange={(selectedOption) => {
+                            handleCategoryChange(selectedOption);
+                            setFormData({
+                                ...formData,
+                                category: selectedOption.map(
+                                    (option) => option.value
+                                ).join(", "),
+                            });
+                        }}
                         isMulti
                         isSearchable={false}
                         closeMenuOnSelect={false}
@@ -108,39 +148,54 @@ export default function CreatePost() {
                         type="text"
                         placeholder="Autor"
                         required
-                        id="autor"
+                        id="author"
                         className=""
+                        onChange={(e) =>
+                            setFormData({ ...formData, author: e.target.value })
+                        }
                     />
                     <div className="flex flex-auto gap-4">
                         <Select
                             id="hasValidation"
-                            placeholder="Selecciona una opcion"
+                            placeholder="Selecciona una opción"
+                            required
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    hasValidation: e.target.value,
+                                })
+                            }
                         >
                             <option value="uncategorized">
                                 Tiene validacion?
                             </option>
-                            <option value="yes">Si</option>
+                            <option value="si">Si</option>
                             <option value="no">No</option>
-                            <option value="partial">Parcial</option>
+                            <option value="parcial">Parcial</option>
                         </Select>
                         <Select
-                            placeholder="Selecciona una opcion"
+                            placeholder="Selecciona una opción"
                             required
                             id="heuristicCount"
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    heuristicCount: (e.target.value),
+                                })
+                            }
                         >
                             <option value="uncategorized">
                                 Cantidad de heuristicas
                             </option>
-                            <option value="option1">1</option>
-                            <option value="option2">2</option>
-                            <option value="option3">3</option>
-                            <option value="option4">4</option>
-                            <option value="option5">5</option>
-                            <option value="option6">6</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
                         </Select>
                         <Datepicker
                             placeholder="Fecha de publicación"
-                            required
                             id="date"
                             className=""
                         ></Datepicker>
@@ -172,7 +227,9 @@ export default function CreatePost() {
                         )}
                     </Button>
                 </div>
-                {imageUploadError && <Alert color="failure">{imageUploadError}</Alert>}
+                {imageUploadError && (
+                    <Alert color="failure">{imageUploadError}</Alert>
+                )}
                 {formData.image && (
                     <img
                         src={formData.image}
@@ -185,10 +242,18 @@ export default function CreatePost() {
                     placeholder="Escribe algo..."
                     className="h-72 mb-12"
                     required
+                    onChange={(value) =>
+                        setFormData({ ...formData, content: value })
+                    }
                 />
                 <Button type="submit" gradientDuoTone="purpleToBlue">
                     Publicar
                 </Button>
+                {publishError && (
+                    <Alert className="mt-5" color="failure">
+                        {publishError}
+                    </Alert>
+                )}
             </form>
         </div>
     );

@@ -28,12 +28,12 @@ const postSchema = new mongoose.Schema(
             required: true,
         },
         heuristicCount: {
-            type: Number,
+            type: String,
             required: true,
         },
         date: {
             type: Date,
-            required: true,
+            default: '2023-10-01T12:00:00Z',
         },
         image: {
             type: String,
