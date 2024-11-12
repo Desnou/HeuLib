@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import SignIn from './pages/SignIn';
 import PrivateRouteAdmin from './components/PrivateRouteAdmin';
 import CreatePost from './pages/CreatePost';
+import UpdatePost from './pages/UpdatePost';
 
 
 
@@ -24,6 +25,7 @@ export default function App() {
       </Route>
       <Route element={<PrivateRouteAdmin />} >
         <Route path="/create-post" element={<CreatePost />} /> 
+        <Route path="/update-post/:postId" element={<UpdatePost />} /> 
       </Route>
 
     </Routes>

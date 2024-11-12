@@ -10,10 +10,10 @@ import {
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import Selection from "react-select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
     getDownloadURL,
     getStorage,
@@ -33,7 +33,7 @@ const options = [
     { value: "learning", label: "Learning" },
 ];
 
-export default function CreatePost() {
+export default function UpdatePost() {
     const [file, setFile] = useState(null);
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
@@ -41,6 +41,31 @@ export default function CreatePost() {
     const navigate = useNavigate();
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [publishError, setPublishError] = useState(null);
+    const { postId } = useParams();
+
+
+    useEffect(() => { 
+        try {
+            const fetchPost = async () => {
+            const res = await fetch(`/api/post/getposts?postId=${postId}`);
+            const data = await res.json();
+            if(!res.ok){
+                console.log
+                setPublishError(data.message);
+                return;
+            }
+            if(res.ok){
+                setPublishError(null);
+                setFormData(data.posts[0]);
+
+            }
+            }
+            fetchPost();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }, [postId]);
+
     const handleUploadImage = async () => {
         try {
             if (!file) {
