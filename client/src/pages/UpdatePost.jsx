@@ -147,6 +147,7 @@ export default function UpdatePost() {
                         onChange={(e) =>
                             setFormData({ ...formData, title: e.target.value })
                         }
+                        value={formData.title || ""}
                     />
 
                     <Selection
@@ -154,7 +155,7 @@ export default function UpdatePost() {
                         type="string"
                         id="category"
                         options={options}
-                        value={selectedOptions}
+                        value={formData.category ? formData.category.split(", ").map((cat) => ({ value: cat, label: cat })) : []}
                         onChange={(selectedOption) => {
                             handleCategoryChange(selectedOption);
                             setFormData({
