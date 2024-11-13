@@ -9,6 +9,7 @@ import SignIn from './pages/SignIn';
 import PrivateRouteAdmin from './components/PrivateRouteAdmin';
 import CreatePost from './pages/CreatePost';
 import UpdatePost from './pages/UpdatePost';
+import PostPage from './pages/PostPage';
 
 
 
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/create-post" element={<CreatePost />} /> 
         <Route path='/update-post/:postId' element={<UpdatePost />} />
       </Route>
+      <Route path="/post/:postSlug" element={<PostPage />} />
 
     </Routes>
       
