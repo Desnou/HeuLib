@@ -21,6 +21,7 @@ import {
     uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
+import { useSelector } from "react-redux";
 
 const options = [
     { value: "games", label: "Games" },
@@ -42,24 +43,23 @@ export default function UpdatePost() {
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [publishError, setPublishError] = useState(null);
     const { postId } = useParams();
+    const { currentUser } = useSelector((state) => state.user);
 
-
-    useEffect(() => { 
+    useEffect(() => {
         try {
             const fetchPost = async () => {
-            const res = await fetch(`/api/post/getposts?postId=${postId}`);
-            const data = await res.json();
-            if(!res.ok){
-                console.log
-                setPublishError(data.message);
-                return;
-            }
-            if(res.ok){
-                setPublishError(null);
-                setFormData(data.posts[0]);
-
-            }
-            }
+                const res = await fetch(`/api/post/getposts?postId=${postId}`);
+                const data = await res.json();
+                if (!res.ok) {
+                    console.log(data.message);
+                    setPublishError(data.message);
+                    return;
+                }
+                if (res.ok) {
+                    setPublishError(null);
+                    setFormData(data.posts[0]);
+                }
+            };
             fetchPost();
         } catch (error) {
             console.log(error.message);
@@ -109,15 +109,23 @@ export default function UpdatePost() {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData); // Verificar el contenido de formData antes de enviarlo
+        // Validate form data
+        if (!formData.title || !formData.author || !formData.content || !formData.content.trim() || !formData.category || !formData.hasValidation || !formData.heuristicCount) {
+            setPublishError("Todos los campos son obligatorios");
+            return;
+        }
+        console.log(formData);
         try {
-            const res = await fetch("/api/post/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            });
+            const res = await fetch(
+                `/api/post/updatepost/${formData._id}/${currentUser._id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                }
+            );
             const data = await res.json();
             if (!res.ok) {
                 setPublishError(data.message);
@@ -128,13 +136,13 @@ export default function UpdatePost() {
                 navigate(`/post/${data.slug}`);
             }
         } catch (error) {
-            setPublishError("Error al publicar la publicación");
+            setPublishError("Something went wrong");
         }
     };
     return (
         <div className="p-4 max-w-3xl mx-auto -min-h-screen">
             <h1 className="text-center text-3xl my-7 font-semibold">
-                Crear publicación
+                Actualizar publicación
             </h1>
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4 sm:flex-col ">
@@ -155,7 +163,14 @@ export default function UpdatePost() {
                         type="string"
                         id="category"
                         options={options}
-                        value={formData.category ? formData.category.split(", ").map((cat) => ({ value: cat, label: cat })) : []}
+                        value={
+                            formData.category
+                                ? formData.category.split(", ").map((cat) => ({
+                                      value: cat,
+                                      label: cat,
+                                  }))
+                                : []
+                        }
                         onChange={(selectedOption) => {
                             handleCategoryChange(selectedOption);
                             setFormData({
@@ -178,6 +193,7 @@ export default function UpdatePost() {
                         onChange={(e) =>
                             setFormData({ ...formData, author: e.target.value })
                         }
+                        value={formData.author || ""}
                     />
                     <div className="flex flex-auto gap-4">
                         <Select
@@ -190,8 +206,9 @@ export default function UpdatePost() {
                                     hasValidation: e.target.value,
                                 })
                             }
+                            value={formData.hasValidation || ""}
                         >
-                            <option value="uncategorized">
+                            <option value="">
                                 Tiene validacion?
                             </option>
                             <option value="si">Si</option>
@@ -208,8 +225,9 @@ export default function UpdatePost() {
                                     heuristicCount: e.target.value,
                                 })
                             }
+                            value={formData.heuristicCount || ""}
                         >
-                            <option value="uncategorized">
+                            <option value="">
                                 Cantidad de heuristicas
                             </option>
                             <option value="1">1</option>
@@ -219,11 +237,6 @@ export default function UpdatePost() {
                             <option value="5">5</option>
                             <option value="6">6</option>
                         </Select>
-                        <Datepicker
-                            placeholder="Fecha de publicación"
-                            id="date"
-                            className=""
-                        ></Datepicker>
                     </div>
                 </div>
                 <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
@@ -264,6 +277,7 @@ export default function UpdatePost() {
                 )}
                 <ReactQuill
                     theme="snow"
+                    value={formData.content || ""}
                     placeholder="Escribe algo..."
                     className="h-72 mb-12"
                     required
@@ -272,7 +286,7 @@ export default function UpdatePost() {
                     }
                 />
                 <Button type="submit" gradientDuoTone="purpleToBlue">
-                    Publicar
+                    Actualizar publicación
                 </Button>
                 {publishError && (
                     <Alert className="mt-5" color="failure">

@@ -31,10 +31,6 @@ const postSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        date: {
-            type: Date,
-            default: '2023-10-01T12:00:00Z',
-        },
         image: {
             type: String,
             default:

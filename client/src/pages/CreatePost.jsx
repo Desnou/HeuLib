@@ -193,11 +193,6 @@ export default function CreatePost() {
                             <option value="5">5</option>
                             <option value="6">6</option>
                         </Select>
-                        <Datepicker
-                            placeholder="Fecha de publicación"
-                            id="date"
-                            className=""
-                        ></Datepicker>
                     </div>
                 </div>
                 <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
