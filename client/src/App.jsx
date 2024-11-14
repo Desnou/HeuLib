@@ -10,12 +10,14 @@ import PrivateRouteAdmin from './components/PrivateRouteAdmin';
 import CreatePost from './pages/CreatePost';
 import UpdatePost from './pages/UpdatePost';
 import PostPage from './pages/PostPage';
+import ScrollToTop from './components/ScrollToTop';
 
 
 
 export default function App() {
   return <BrowserRouter>
   <CustomHeader />
+  <ScrollToTop />
     <Routes>
       <Route path="/" element={<Home />} /> 
       <Route path="/sign-in" element={<SignIn />} /> 
