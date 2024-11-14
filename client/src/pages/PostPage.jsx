@@ -80,8 +80,8 @@ export default function PostPage() {
                     lectura
                 </span>
             </div>
-            <div className="p-3 max-w-2xl mx-auto w-full post-content" dangerouslySetInnerHTML={{__html: post && post.content}}>
-
+            <div className='p-3 max-w-2xl mx-auto w-full post-content'>
+                <div dangerouslySetInnerHTML={{__html: post && post.content}}/>
             </div>
         </main>
     );

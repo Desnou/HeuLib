@@ -7,9 +7,9 @@ import {
     Select,
     TextInput,
 } from "flowbite-react";
-import ReactQuill from "react-quill-new";
-import "react-quill-new/dist/quill.snow.css";
-import Selection from "react-select";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import Selection from "react-select";   
 import { useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -237,7 +237,7 @@ export default function CreatePost() {
                     className="h-72 mb-12"
                     required
                     onChange={(value) =>
-                        setFormData({ ...formData, content: value })
+                        setFormData((prevFormData) => ({ ...prevFormData, content: value }))
                     }
                 />
                 <Button type="submit" gradientDuoTone="purpleToBlue">

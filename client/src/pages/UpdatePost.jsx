@@ -1,14 +1,6 @@
-import {
-    Alert,
-    Button,
-    Datepicker,
-    Dropdown,
-    FileInput,
-    Select,
-    TextInput,
-} from "flowbite-react";
-import ReactQuill from "react-quill-new";
-import "react-quill-new/dist/quill.snow.css";
+import { Alert, Button, FileInput, Select, TextInput } from "flowbite-react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import Selection from "react-select";
 import { useEffect, useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
@@ -39,12 +31,12 @@ export default function UpdatePost() {
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
     const [formData, setFormData] = useState({});
-    const navigate = useNavigate();
-    const [selectedOptions, setSelectedOptions] = useState([]);
     const [publishError, setPublishError] = useState(null);
     const { postId } = useParams();
-    const { currentUser } = useSelector((state) => state.user);
 
+    const navigate = useNavigate();
+    const { currentUser } = useSelector((state) => state.user);
+    const [selectedOptions, setSelectedOptions] = useState([]);
     useEffect(() => {
         try {
             const fetchPost = async () => {
@@ -60,6 +52,7 @@ export default function UpdatePost() {
                     setFormData(data.posts[0]);
                 }
             };
+
             fetchPost();
         } catch (error) {
             console.log(error.message);
@@ -109,12 +102,6 @@ export default function UpdatePost() {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Validate form data
-        if (!formData.title || !formData.author || !formData.content || !formData.content.trim() || !formData.category || !formData.hasValidation || !formData.heuristicCount) {
-            setPublishError("Todos los campos son obligatorios");
-            return;
-        }
-        console.log(formData);
         try {
             const res = await fetch(
                 `/api/post/updatepost/${formData._id}/${currentUser._id}`,
@@ -131,6 +118,7 @@ export default function UpdatePost() {
                 setPublishError(data.message);
                 return;
             }
+
             if (res.ok) {
                 setPublishError(null);
                 navigate(`/post/${data.slug}`);
@@ -155,7 +143,7 @@ export default function UpdatePost() {
                         onChange={(e) =>
                             setFormData({ ...formData, title: e.target.value })
                         }
-                        value={formData.title || ""}
+                        value={formData.title}
                     />
 
                     <Selection
@@ -163,14 +151,7 @@ export default function UpdatePost() {
                         type="string"
                         id="category"
                         options={options}
-                        value={
-                            formData.category
-                                ? formData.category.split(", ").map((cat) => ({
-                                      value: cat,
-                                      label: cat,
-                                  }))
-                                : []
-                        }
+                        value={formData.category ? formData.category.split(", ").map((cat) => ({ value: cat, label: cat })) : []}
                         onChange={(selectedOption) => {
                             handleCategoryChange(selectedOption);
                             setFormData({
@@ -193,7 +174,7 @@ export default function UpdatePost() {
                         onChange={(e) =>
                             setFormData({ ...formData, author: e.target.value })
                         }
-                        value={formData.author || ""}
+                        value={formData.author}
                     />
                     <div className="flex flex-auto gap-4">
                         <Select
@@ -206,11 +187,9 @@ export default function UpdatePost() {
                                     hasValidation: e.target.value,
                                 })
                             }
-                            value={formData.hasValidation || ""}
+                            value={formData.hasValidation}
                         >
-                            <option value="">
-                                Tiene validacion?
-                            </option>
+                            <option value="">Tiene validacion?</option>
                             <option value="si">Si</option>
                             <option value="no">No</option>
                             <option value="parcial">Parcial</option>
@@ -225,11 +204,9 @@ export default function UpdatePost() {
                                     heuristicCount: e.target.value,
                                 })
                             }
-                            value={formData.heuristicCount || ""}
+                            value={formData.heuristicCount}
                         >
-                            <option value="">
-                                Cantidad de heuristicas
-                            </option>
+                            <option value="">Cantidad de heuristicas</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -276,15 +253,23 @@ export default function UpdatePost() {
                     />
                 )}
                 <ReactQuill
-                    theme="snow"
-                    value={formData.content || ""}
-                    placeholder="Escribe algo..."
-                    className="h-72 mb-12"
-                    required
-                    onChange={(value) =>
-                        setFormData({ ...formData, content: value })
-                    }
-                />
+          theme='snow'
+          value={formData.content || ''}
+          placeholder='Escribe algo...'
+          className='h-72 mb-12'
+          required
+          onChange={(value) => {
+            setFormData((prevFormData) => ({
+              ...prevFormData,
+              content: value,
+            }));
+          }}
+          modules={{
+            clipboard: {
+              matchVisual: false,
+            },
+          }}
+        />
                 <Button type="submit" gradientDuoTone="purpleToBlue">
                     Actualizar publicación
                 </Button>

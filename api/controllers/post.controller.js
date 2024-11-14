@@ -90,7 +90,7 @@ export const getposts = async (req, res, next) => {
 };
 
 export const deletepost = async (req, res, next) => {
-    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    if (!req.user.isAdmin || req.user.id !== req.params.userId || !req.params.postId) {
         return next(
             errorHandler(
                 403,
@@ -107,7 +107,7 @@ export const deletepost = async (req, res, next) => {
 };
 
 export const updatepost = async (req, res, next) => {
-    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    if (!req.user.isAdmin || req.user.id !== req.params.userId || !req.params.postId) {
         return next(
             errorHandler(403, "No estás autorizado para editar esta publicación")
         );

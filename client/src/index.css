@@ -10,7 +10,15 @@ body {
 .ql-editor {
   font-size: 1.05rem;
 }
-
+/* .ql-clipboard {
+  left: -100000px;
+  height: 1px;
+  overflow-y: hidden;
+  position: absolute;
+  top: 50%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+} */
 .post-content p{
   margin-bottom: 0.5rem;
 }
@@ -37,3 +45,4 @@ body {
 .post-content a:hover{
   text-decoration: underline;
 }
+
