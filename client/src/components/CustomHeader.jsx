@@ -1,14 +1,27 @@
 import { AiOutlineSearch } from "react-icons/ai";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate  } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Avatar, Button, Dropdown, DropdownHeader, Navbar, TextInput } from "flowbite-react";
 import { signOutSuccess } from "../redux/user/userSlice";
+import { useEffect, useState } from "react";
 
 
 export default function CustomHeader() {
   const { currentUser } = useSelector((state) => state.user);
+  const location = useLocation();
   const path = useLocation().pathname;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get('searchTerm');
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
+    }
+  }, [location.search]);
   const handleSignOut = async () => {
     try {
         const res = await fetch('/api/user/signout', {
@@ -24,6 +37,15 @@ export default function CustomHeader() {
         console.log(error.message);
     }
 };
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const urlParams = new URLSearchParams(location.search);
+  urlParams.set('searchTerm', searchTerm);
+  const searchQuery = urlParams.toString();
+  navigate(`/search?${searchQuery}`);
+};
+
   return (
     <Navbar className="border-b-2 ">
         <Link
@@ -35,12 +57,14 @@ export default function CustomHeader() {
           </span>
           <span className="text-slate-700">Lib</span>
         </Link>
-        <form>
+        <form onSubmit={handleSubmit}>
           <TextInput
             type="text"
             placeholder="Buscar..."
             rightIcon={AiOutlineSearch}
             className="hidden lg:inline"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             />
         </form>
         <Button className="w-12 h-10 lg:hidden" color="gray" pill>

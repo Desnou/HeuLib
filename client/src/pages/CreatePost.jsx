@@ -248,7 +248,13 @@ export default function CreatePost() {
                         {publishError}
                     </Alert>
                 )}
+                {currentUser && currentUser.isAdmin && (
+                    <Button gradientDuoTone="cyanToBlue" outline>
+                        <Link to="/dashboard/suggested-posts">Suggested Posts</Link>
+                    </Button>
+                )}
             </form>
+        <Button gradientDuoTone="cyanToBlue" outline></Button>
         </div>
     );
 }

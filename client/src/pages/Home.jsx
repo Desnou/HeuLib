@@ -27,9 +27,7 @@ export default function Home() {
                     Bienvenido a Heuristics Lib
                 </h1>
                 <p className="text-gray-500 text-xs sm:text-sm">
-                    Nuestra plataforma está diseñada para facilitar el acceso a
-                    conjuntos de heurísticas de usabilidad y experiencia del
-                    usuario adaptados a diferentes dominios...
+                Nuestra plataforma está diseñada para facilitar el acceso a conjuntos de heurísticas de usabilidad y experiencia del usuario adaptados a diferentes dominios. Aquí encontrarás una base de datos centralizada y constantemente actualizada que te permitirá buscar, categorizar y seleccionar heurísticas específicas para tus proyectos. Ya seas un profesional o estudiante en el campo de la usabilidad, nuestra herramienta te ayudará a simplificar el proceso de evaluación, ofreciéndote recursos organizados y funcionales en un solo lugar. ¡Descubre una nueva forma de potenciar tus evaluaciones de usabilidad!
                 </p>
                 <Link
                     to="/search"
