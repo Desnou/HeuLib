@@ -6,11 +6,12 @@ import { useSelector } from "react-redux";
 import { Button, Textarea } from "flowbite-react";
 moment.locale("es");
 
-export default function Comment({ comment, onLike, onEdit }) {
+export default function Comment({ comment, onLike, onEdit, onDelete }) {
     const [user, setUser] = useState({});
     const { currentUser } = useSelector((state) => state.user);
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(comment.content);
+
     useEffect(() => {
         const getUser = async () => {
             try {
@@ -120,6 +121,7 @@ export default function Comment({ comment, onLike, onEdit }) {
                             {currentUser &&
                                 (currentUser._id === comment.userId ||
                                     currentUser.isAdmin) && (
+                                    <>
                                     <button
                                         type="button"
                                         onClick={handleEdit}
@@ -127,6 +129,15 @@ export default function Comment({ comment, onLike, onEdit }) {
                                     >
                                         Editar
                                     </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => onDelete(comment._id)}
+                                        className="text-gray-400 hover:text-red-500"
+                                    >
+                                        Eliminar
+                                    </button>
+                                    </>
+
                                 )}
                         </div>
                     </>

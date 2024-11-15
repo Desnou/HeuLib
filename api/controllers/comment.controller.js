@@ -74,3 +74,19 @@ export const editComment = async (req, res, next) => {
         next(error);
     }
 };
+
+export const deleteComment = async (req, res, next) => {
+    try {
+        const comment = await Comment.findById(req.params.commentId);
+        if(!comment){
+            return next(errorHandler(404, "Comentario no encontrado"));
+        }
+        if(comment.userId !== req.user.id && !req.user.isAdmin){
+            return next(errorHandler(403, "No tienes permiso para realizar esta acción"));
+        }
+        await Comment.findByIdAndDelete(req.params.commentId);
+        res.status(200).json({ message: "Comentario eliminado con éxito" });
+    } catch (error) {
+        next(error);
+    }
+};
