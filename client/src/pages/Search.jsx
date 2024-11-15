@@ -10,7 +10,7 @@ export default function Search() {
         searchTerm: "",
         author: "",
         sort: "desc",
-        category: "uncategorized",
+        category: "",
     });
     console.log(sidebarData);
     const [posts, setPosts] = useState([]);
@@ -33,19 +33,17 @@ export default function Search() {
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
-        const searchTermFromUrl = urlParams.get("searchTerm");
-        const authorFromUrl = urlParams.get("author");
-        const sortFromUrl = urlParams.get("sort");
-        const categoryFromUrl = urlParams.get("category");
-        if (searchTermFromUrl || authorFromUrl || sortFromUrl || categoryFromUrl) {
-            setSidebarData({
-                ...sidebarData,
-                searchTerm: searchTermFromUrl,
-                author: authorFromUrl,
-                sort: sortFromUrl,
-                category: categoryFromUrl,
-            });
-        }
+        const searchTermFromUrl = urlParams.get("searchTerm") || "";
+        const authorFromUrl = urlParams.get("author") || "";
+        const sortFromUrl = urlParams.get("sort") || "desc";
+        const categoryFromUrl = urlParams.get("category") || "";
+        setSidebarData({
+            searchTerm: searchTermFromUrl,
+            author: authorFromUrl,
+            sort: sortFromUrl,
+            category: categoryFromUrl,
+        });
+
         const fetchPosts = async () => {
             setLoading(true);
             const searchQuery = urlParams.toString();
@@ -54,39 +52,28 @@ export default function Search() {
                 setLoading(false);
                 return;
             }
-            if (res.ok) {
-                const data = await res.json();
-                setPosts(data.posts);
-                setLoading(false);
-                if (data.posts.length === 9) {
-                    setShowMore(true);
-                } else {
-                    setShowMore(false);
-                }
-            }
+            const data = await res.json();
+            setPosts(data.posts);
+            setLoading(false);
+            setShowMore(data.posts.length === 9);
         };
         fetchPosts();
     }, [location.search]);
 
     const handleChange = (e) => {
-        if (e.target.id === "searchTerm") {
-            setSidebarData({ ...sidebarData, searchTerm: e.target.value });
-        }
-        if (e.target.id === "author") {
-            setSidebarData({ ...sidebarData, author: e.target.value });
-        }
-        if (e.target.id === "sort") {
-            const order = e.target.value || "desc";
-            setSidebarData({ ...sidebarData, sort: order });
-        }
-        if (e.target.id === "category") {
-            const category = e.target.value || "uncategorized";
-            setSidebarData({ ...sidebarData, category });
-        }
+        const { id, value } = e.target;
+        setSidebarData((prevData) => ({
+            ...prevData,
+            [id]: value,
+        }));
     };
 
     const handleCategoryChange = (selectedOption) => {
         setSelectedOptions(selectedOption);
+        setSidebarData((prevData) => ({
+            ...prevData,
+            category: selectedOption.map((option) => option.value).join(", "),
+        }));
     };
 
     const handleSubmit = (e) => {
@@ -110,15 +97,9 @@ export default function Search() {
         if (!res.ok) {
             return;
         }
-        if (res.ok) {
-            const data = await res.json();
-            setPosts([...posts, ...data.posts]);
-            if (data.posts.length === 9) {
-                setShowMore(true);
-            } else {
-                setShowMore(false);
-            }
-        }
+        const data = await res.json();
+        setPosts((prevPosts) => [...prevPosts, ...data.posts]);
+        setShowMore(data.posts.length === 9);
     };
 
     return (
@@ -168,19 +149,11 @@ export default function Search() {
                             id="category"
                             options={options}
                             value={selectedOptions}
-                            onChange={(selectedOption) => {
-                                handleCategoryChange(selectedOption);
-                                setSidebarData({
-                                    ...sidebarData,
-                                    category: selectedOption
-                                        .map((option) => option.value)
-                                        .join(", "),
-                                });
-                            }}
+                            onChange={handleCategoryChange}
                             isMulti
                             isSearchable={false}
                             closeMenuOnSelect={false}
-                            className="ma"
+                            className=""
                         />
                     </div>
                     <Button
