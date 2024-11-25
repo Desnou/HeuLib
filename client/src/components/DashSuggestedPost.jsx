@@ -4,22 +4,22 @@ import { Button, Modal, Table } from "flowbite-react";
 import { Link } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
-export default function DashPosts() {
+export default function PostSugeridos() {
     const { currentUser } = useSelector((state) => state.user);
-    const [userPosts, setUserPosts] = useState([]);
+    const [suggestedPosts, setSuggestedPosts] = useState([]);
     const [showMore, setShowMore] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [postIdToDelete, setPostIdToDelete] = useState("");
+    const [postIdToAccept, setPostIdToAccept] = useState("");
+
     useEffect(() => {
-        const fetchPosts = async () => {
+        const fetchSuggestedPosts = async () => {
             try {
-                const res = await fetch(
-                    `/api/post/getposts`
-                );
+                const res = await fetch(`/api/post/getsuggestedposts`);
                 const data = await res.json();
                 if (res.ok) {
-                    setUserPosts(data.posts);
-                    if (data.posts.length < 9) {
+                    setSuggestedPosts(data.suggestedposts);
+                    if (data.suggestedposts.length < 9) {
                         setShowMore(false);
                     }
                 }
@@ -28,20 +28,20 @@ export default function DashPosts() {
             }
         };
         if (currentUser.isAdmin) {
-            fetchPosts();
+            fetchSuggestedPosts();
         }
     }, [currentUser._id]);
 
     const handleShowMore = async () => {
-        const startIndex = userPosts.length;
+        const startIndex = suggestedPosts.length;
         try {
             const res = await fetch(
-                `/api/post/getposts?&startIndex=${startIndex}`
+                `/api/post/getsuggestedposts?startIndex=${startIndex}`
             );
             const data = await res.json();
             if (res.ok) {
-                setUserPosts((prev) => [...prev, ...data.posts]);
-                if (data.posts.length < 9) {
+                setSuggestedPosts((prev) => [...prev, ...data.suggestedposts]);
+                if (data.suggestedposts.length < 9) {
                     setShowMore(false);
                 }
             }
@@ -54,7 +54,7 @@ export default function DashPosts() {
         setShowModal(false);
         try {
             const res = await fetch(
-                `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
+                `/api/post/deletesuggestedpost/${postIdToDelete}/${currentUser._id}`,
                 {
                     method: "DELETE",
                 }
@@ -63,8 +63,26 @@ export default function DashPosts() {
             if (!res.ok) {
                 console.log(data.message);
             } else {
-                setUserPosts((prev) =>
+                setSuggestedPosts((prev) =>
                     prev.filter((post) => post._id !== postIdToDelete)
+                );
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+    const handleAcceptPost = async (postId) => {
+        try {
+            const res = await fetch(`/api/post/acceptsuggestedpost/${postId}`, {
+                method: "POST",
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                console.log(data.message);
+            } else {
+                setSuggestedPosts((prev) =>
+                    prev.filter((post) => post._id !== postId)
                 );
             }
         } catch (error) {
@@ -74,7 +92,7 @@ export default function DashPosts() {
 
     return (
         <div className="table-auto overflow-x-auto md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300">
-            {currentUser.isAdmin && userPosts.length > 0 ? (
+            {currentUser.isAdmin && suggestedPosts.length > 0 ? (
                 <>
                     <Table hoverable className="shadow-md">
                         <Table.Head>
@@ -84,10 +102,10 @@ export default function DashPosts() {
                             <Table.HeadCell>Categoría</Table.HeadCell>
                             <Table.HeadCell>Borrar</Table.HeadCell>
                             <Table.HeadCell>
-                                <span>Editar</span>
+                                <span>Aceptar</span>
                             </Table.HeadCell>
                         </Table.Head>
-                        {userPosts.map((post) => (
+                        {suggestedPosts.map((post) => (
                             <Table.Body className="divide-y" key={post._id}>
                                 <Table.Row className="bg-white ">
                                     <Table.Cell>
@@ -114,7 +132,7 @@ export default function DashPosts() {
                                     </Table.Cell>
                                     <Table.Cell>{post.category}</Table.Cell>
                                     <Table.Cell>
-                                    <span
+                                        <span
                                             onClick={() => {
                                                 setShowModal(true);
                                                 setPostIdToDelete(post._id);
@@ -125,12 +143,15 @@ export default function DashPosts() {
                                         </span>
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <Link
-                                            className="text-teal-500 hover:underline"
-                                            to={`/update-post/${post._id}`}
+                                        <span
+                                            onClick={() => {
+                                                setPostIdToAccept(post._id);
+                                                handleAcceptPost(post._id);
+                                            }}
+                                            className="font-medium text-teal-500 hover:underline cursor-pointer"
                                         >
-                                            <span>Editar</span>
-                                        </Link>
+                                            Aceptar
+                                        </span>
                                     </Table.Cell>
                                 </Table.Row>
                             </Table.Body>
@@ -138,16 +159,16 @@ export default function DashPosts() {
                     </Table>
                     {showMore && (
                         <button
-                        onClick={handleShowMore}
-                        className='w-full text-teal-500 self-center text-sm py-7'
-                      >
-                        Ver más
-                      </button>
+                            onClick={handleShowMore}
+                            className="w-full text-teal-500 self-center text-sm py-7"
+                        >
+                            Ver más
+                        </button>
                     )}
-                  </>
-                ) : (
-                  <p>No hay publicaciones aun!</p>
-                )}
+                </>
+            ) : (
+                <p>No hay publicaciones sugeridas aún</p>
+            )}
             <Modal
                 show={showModal}
                 onClose={() => setShowModal(false)}

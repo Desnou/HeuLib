@@ -32,8 +32,7 @@ const options = [
     { value: "computers", label: "Computers" },
     { value: "learning", label: "Learning" },
 ];
-
-export default function CreatePost() {
+export default function SugerirPost() {
     const [file, setFile] = useState(null);
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
@@ -41,6 +40,7 @@ export default function CreatePost() {
     const navigate = useNavigate();
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [publishError, setPublishError] = useState(null);
+
     const handleUploadImage = async () => {
         try {
             if (!file) {
@@ -79,14 +79,16 @@ export default function CreatePost() {
             console.log(error);
         }
     };
+
     const handleCategoryChange = (selectedOption) => {
         setSelectedOptions(selectedOption);
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData); // Verificar el contenido de formData antes de enviarlo
+        console.log(formData);
         try {
-            const res = await fetch("/api/post/create", {
+            const res = await fetch("/api/post/suggestpost", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -94,22 +96,24 @@ export default function CreatePost() {
                 body: JSON.stringify(formData),
             });
             const data = await res.json();
+            if (res.ok) {
+                setPublishError(null);
+                
+                navigate("/dashboard?tab=dash");
+            } 
             if (!res.ok) {
                 setPublishError(data.message);
                 return;
             }
-            if (res.ok) {
-                setPublishError(null);
-                navigate(`/post/${data.slug}`);
-            }
         } catch (error) {
-            setPublishError("Error al publicar la publicación");
+            setPublishError(error.message);
         }
     };
+
     return (
         <div className="p-4 max-w-3xl mx-auto -min-h-screen">
             <h1 className="text-center text-3xl my-7 font-semibold">
-                Crear publicación
+                Sugerir publicación
             </h1>
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4 sm:flex-col ">
@@ -124,7 +128,7 @@ export default function CreatePost() {
                         }
                     />
 
-                    <Selection
+<Selection
                         placeholder="Selecciona una categoría"
                         type="string"
                         id="category"
@@ -166,7 +170,7 @@ export default function CreatePost() {
                             }
                         >
                             <option value="uncategorized">
-                                Tiene validación?
+                                Tiene validacion?
                             </option>
                             <option value="si">Si</option>
                             <option value="no">No</option>
@@ -184,7 +188,7 @@ export default function CreatePost() {
                             }
                         >
                             <option value="uncategorized">
-                                Cantidad de heurísticas
+                                Cantidad de heuristicas
                             </option>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -241,7 +245,7 @@ export default function CreatePost() {
                     }
                 />
                 <Button type="submit" gradientDuoTone="purpleToBlue">
-                    Publicar
+                    Sugerir
                 </Button>
                 {publishError && (
                     <Alert className="mt-5" color="failure">

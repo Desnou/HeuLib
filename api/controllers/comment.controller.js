@@ -59,7 +59,7 @@ export const editComment = async (req, res, next) => {
         if (!comment) {
             return next(errorHandler(404, "Comentario no encontrado"));
         }
-        if (comment.userId !== req.user.id && req.user.isAdmin) {
+        if (comment.userId !== req.user.id && !req.user.isAdmin) {
             return next(
                 errorHandler(403, "No tienes permiso para realizar esta acción")
             );

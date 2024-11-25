@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const postSchema = new mongoose.Schema(
+const suggestpostSchema = new mongoose.Schema(
     {
         userId: {
             type: String,
@@ -44,5 +44,5 @@ const postSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
-const Post = mongoose.model("Post", postSchema);
-export default Post;
+const SuggestPost = mongoose.model("SuggestPost", suggestpostSchema);
+export default SuggestPost;

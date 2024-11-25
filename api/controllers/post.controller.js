@@ -1,4 +1,5 @@
 import Post from "../models/post.model.js";
+import SuggestPost from "../models/suggestpost.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const create = async (req, res, next) => {
@@ -129,6 +130,113 @@ export const updatepost = async (req, res, next) => {
             { new: true }
         );
         res.status(200).json(updatedPost);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const suggestpost = async (req, res, next) => {
+    if (!req.body.title || !req.body.content || !req.body.category || !req.body.author || !req.body.hasValidation || !req.body.heuristicCount) {
+        return next(errorHandler(400, "Faltan campos obligatorios"));
+    }
+    const slug = req.body.title.split(" ").join("-").toLowerCase().replace(/[^a-zA-Z0-9-]/g, "");
+    const newSuggestPost = new SuggestPost({
+        ...req.body,
+        slug,
+        userId: req.user.id,
+    });
+    try {
+        const savedSuggestPost = await newSuggestPost.save();
+        res.status(201).json(savedSuggestPost);
+    } catch (error) {
+        next(error);
+    }
+};
+// Función para obtener las publicaciones sugeridas
+export const getsuggestedposts = async (req, res, next) => {
+    try {
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 9;
+        const sortDirection = req.query.order === 'asc' ? 1 : -1;
+        const suggestedposts = await SuggestPost.find({
+            ...(req.query.userId && { userId: req.query.userId }),
+            ...(req.query.category && {
+                category: { $regex: req.query.category, $options: "i" },
+            }),
+            ...(req.query.slug && { slug: req.query.slug }),
+            ...(req.query.postId && { _id: req.query.postId }),
+            ...(req.query.author && { author: req.query.author }),
+            ...(req.query.searchTerm && {
+                $or: [
+                    { title: { $regex: req.query.searchTerm, $options: "i" } },
+                    {
+                        content: {
+                            $regex: req.query.searchTerm,
+                            $options: "i",
+                        },
+                    },
+                    {
+                        category: {
+                            $regex: req.query.searchTerm,
+                            $options: "i",
+                        },
+                    },
+                ],
+            }),
+        })
+            .sort({ updatedAt: sortDirection })
+            .skip(startIndex)
+            .limit(limit);
+
+        const totalSuggestedPosts = await SuggestPost.countDocuments();
+
+        const now = new Date();
+
+        const oneMonthAgo = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            now.getDate()
+        );
+
+        const lastMonthSuggestedPosts = await SuggestPost.countDocuments({
+            createdAt: { $gte: oneMonthAgo },
+        });
+        res.status(200).json({ suggestedposts, totalSuggestedPosts, lastMonthSuggestedPosts });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const acceptsuggestedpost = async (req, res, next) => {
+    try {
+        const suggestedPost = await SuggestPost.findById(req.params.postId);
+        if (!suggestedPost) {
+            return next(errorHandler(404, "Sugerencia no encontrada"));
+        }
+        const newSuggestPost = new SuggestPost({
+            ...suggestedPost._doc,
+            userId: req.user.id,
+        });
+        await newSuggestPost.save();
+        await suggestedPost.findByIdAndDelete(req.params.postId);
+        res.status(200).json("Sugerencia aceptada y publicada");
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const deletesuggestedpost = async (req, res, next) => {
+    if (!req.user.isAdmin || req.user.id !== req.params.userId || !req.params.postId) {
+        return next(
+            errorHandler(
+                403,
+                "No estás autorizado para eliminar esta publicación"
+            )
+        );
+    }
+    try {
+        await SuggestPost.findByIdAndDelete(req.params.postId);
+        res.status(200).json("Sugerencia rechazada y eliminada");
     } catch (error) {
         next(error);
     }

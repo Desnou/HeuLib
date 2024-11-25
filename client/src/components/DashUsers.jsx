@@ -1,6 +1,6 @@
+import { Modal, Table, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Button, Modal, Table } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
@@ -17,7 +17,7 @@ export default function DashUsers() {
                 const data = await res.json();
                 if (res.ok) {
                     setUsers(data.users);
-                    if (data.users.length < 10) {
+                    if (data.users.length < 9) {
                         setShowMore(false);
                     }
                 }
@@ -39,7 +39,7 @@ export default function DashUsers() {
             const data = await res.json();
             if (res.ok) {
                 setUsers((prev) => [...prev, ...data.users]);
-                if (data.users.length < 10) {
+                if (data.users.length < 9) {
                     setShowMore(false);
                 }
             }
@@ -54,8 +54,10 @@ export default function DashUsers() {
                 method: "DELETE",
             });
             const data = await res.json();
-            if(res.ok){
-                setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete));
+            if (res.ok) {
+                setUsers((prev) =>
+                    prev.filter((user) => user._id !== userIdToDelete)
+                );
                 setShowModal(false);
             } else {
                 console.log(data.message);
@@ -63,7 +65,6 @@ export default function DashUsers() {
         } catch (error) {
             console.log(error.message);
         }
-    
     };
 
     return (
@@ -96,7 +97,13 @@ export default function DashUsers() {
                                     </Table.Cell>
                                     <Table.Cell>{user.username}</Table.Cell>
                                     <Table.Cell>{user.email}</Table.Cell>
-                                    <Table.Cell>{user.isAdmin ? (<FaCheck className='text-green-500'/>) : (<FaTimes className='text-red-500'/>)}</Table.Cell>
+                                    <Table.Cell>
+                                        {user.isAdmin ? (
+                                            <FaCheck className="text-green-500" />
+                                        ) : (
+                                            <FaTimes className="text-red-500" />
+                                        )}
+                                    </Table.Cell>
                                     <Table.Cell>
                                         <span
                                             onClick={() => {

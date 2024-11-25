@@ -4,13 +4,11 @@ import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import Selection from "react-select";
-
 export default function Search() {
     const [sidebarData, setSidebarData] = useState({
         searchTerm: "",
-        author: "",
         sort: "desc",
-        category: "",
+        category: "uncategorized",
     });
     console.log(sidebarData);
     const [posts, setPosts] = useState([]);
@@ -30,20 +28,19 @@ export default function Search() {
         { value: "computers", label: "Computers" },
         { value: "learning", label: "Learning" },
     ];
-
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
-        const searchTermFromUrl = urlParams.get("searchTerm") || "";
-        const authorFromUrl = urlParams.get("author") || "";
-        const sortFromUrl = urlParams.get("sort") || "desc";
-        const categoryFromUrl = urlParams.get("category") || "";
-        setSidebarData({
-            searchTerm: searchTermFromUrl,
-            author: authorFromUrl,
-            sort: sortFromUrl,
-            category: categoryFromUrl,
-        });
-
+        const searchTermFromUrl = urlParams.get("searchTerm");
+        const sortFromUrl = urlParams.get("sort");
+        const categoryFromUrl = urlParams.get("category");
+        if (searchTermFromUrl || sortFromUrl || categoryFromUrl) {
+            setSidebarData({
+                ...sidebarData,
+                searchTerm: searchTermFromUrl,
+                sort: sortFromUrl,
+                category: categoryFromUrl,
+            });
+        }
         const fetchPosts = async () => {
             setLoading(true);
             const searchQuery = urlParams.toString();
@@ -52,41 +49,45 @@ export default function Search() {
                 setLoading(false);
                 return;
             }
-            const data = await res.json();
-            setPosts(data.posts);
-            setLoading(false);
-            setShowMore(data.posts.length === 9);
+            if (res.ok) {
+                const data = await res.json();
+                setPosts(data.posts);
+                setLoading(false);
+                if (data.posts.length === 9) {
+                    setShowMore(true);
+                } else {
+                    setShowMore(false);
+                }
+            }
         };
         fetchPosts();
     }, [location.search]);
-
     const handleChange = (e) => {
-        const { id, value } = e.target;
-        setSidebarData((prevData) => ({
-            ...prevData,
-            [id]: value,
-        }));
+        if (e.target.id === "searchTerm") {
+            setSidebarData({ ...sidebarData, searchTerm: e.target.value });
+        }
+        if (e.target.id === "sort") {
+            const order = e.target.value || "desc";
+            setSidebarData({ ...sidebarData, sort: order });
+        }
+        if (e.target.id === "category") {
+            const category = e.target.value || "uncategorized";
+            setSidebarData({ ...sidebarData, category });
+        }
     };
-
     const handleCategoryChange = (selectedOption) => {
         setSelectedOptions(selectedOption);
-        setSidebarData((prevData) => ({
-            ...prevData,
-            category: selectedOption.map((option) => option.value).join(", "),
-        }));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         const urlParams = new URLSearchParams(location.search);
         urlParams.set("searchTerm", sidebarData.searchTerm);
-        urlParams.set("author", sidebarData.author);
         urlParams.set("order", sidebarData.sort);
         urlParams.set("category", sidebarData.category);
         const searchQuery = urlParams.toString();
         navigate(`/search?${searchQuery}`);
     };
-
     const handleShowMore = async () => {
         const numberOfPosts = posts.length;
         const startIndex = numberOfPosts;
@@ -97,16 +98,21 @@ export default function Search() {
         if (!res.ok) {
             return;
         }
-        const data = await res.json();
-        setPosts((prevPosts) => [...prevPosts, ...data.posts]);
-        setShowMore(data.posts.length === 9);
+        if (res.ok) {
+            const data = await res.json();
+            setPosts([...posts, ...data.posts]);
+            if (data.posts.length === 9) {
+                setShowMore(true);
+            } else {
+                setShowMore(false);
+            }
+        }
     };
-
     return (
         <div className="flex flex-col md:flex-row">
             <div className="p-7 border-b md:border-r md:min-h-screen border-gray-500">
                 <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
-                    <div className="flex items-center gap-2">
+                    <div className="flex   items-center gap-2">
                         <label className="whitespace-nowrap font-semibold">
                             Buscar por tema:
                         </label>
@@ -115,18 +121,6 @@ export default function Search() {
                             id="searchTerm"
                             type="text"
                             value={sidebarData.searchTerm}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <label className="whitespace-nowrap font-semibold">
-                            Buscar por autor:
-                        </label>
-                        <TextInput
-                            placeholder="Autor..."
-                            id="author"
-                            type="text"
-                            value={sidebarData.author}
                             onChange={handleChange}
                         />
                     </div>
@@ -141,7 +135,7 @@ export default function Search() {
                             <option value="asc">Antiguo</option>
                         </Select>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
                         <label className="font-semibold">Categoría:</label>
                         <Selection
                             placeholder="Selecciona una categoría"
@@ -149,11 +143,18 @@ export default function Search() {
                             id="category"
                             options={options}
                             value={selectedOptions}
-                            onChange={handleCategoryChange}
+                            onChange={(selectedOption) => {
+                                handleCategoryChange(selectedOption);
+                                setSidebarData({
+                                    ...sidebarData,
+                                    category: selectedOption
+                                        .map((option) => option.value)
+                                        .join(", "),
+                                });
+                            }}
                             isMulti
                             isSearchable={false}
                             closeMenuOnSelect={false}
-                            className=""
                         />
                     </div>
                     <Button

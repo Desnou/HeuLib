@@ -81,6 +81,15 @@ export default function DashSidebar() {
                     )}
                     {currentUser.isAdmin && (
                         <>
+                            <Link to="/dashboard?tab=suggested-posts">
+                                <Sidebar.Item
+                                    active={tab === "suggested-posts"}
+                                    icon={HiDocumentText}
+                                    as="div"
+                                >
+                                    Post Sugeridos
+                                </Sidebar.Item>
+                            </Link>
                             <Link to="/dashboard?tab=users">
                                 <Sidebar.Item
                                     active={tab === "users"}
@@ -101,6 +110,15 @@ export default function DashSidebar() {
                             </Link>
                         </>
                     )}
+                    <Link to="/dashboard?tab=suggest-post">
+                        <Sidebar.Item
+                            active={tab === "suggest-post"}
+                            icon={HiDocumentText}
+                            as="div"
+                        >
+                            Sugerir Post
+                        </Sidebar.Item>
+                    </Link>
                     <Sidebar.Item
                         icon={HiArrowSmRight}
                         className="cursor-pointer"
