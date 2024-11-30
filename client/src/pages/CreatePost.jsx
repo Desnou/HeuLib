@@ -1,15 +1,18 @@
 import {
     Alert,
     Button,
+    Checkbox,
     Datepicker,
     Dropdown,
     FileInput,
+    Label,
     Select,
+    Textarea,
     TextInput,
 } from "flowbite-react";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import Selection from "react-select";   
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import Selection from "react-select";
 import { useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -41,6 +44,23 @@ export default function CreatePost() {
     const navigate = useNavigate();
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [publishError, setPublishError] = useState(null);
+    const [selectedDomain, setSelectedDomain] = useState([]);
+    console.log(formData);
+
+    const handleDomainChange = (e) => {
+        const { id, checked } = e.target;
+        let updatedDomains;
+        if (checked) {
+            updatedDomains = [...selectedDomain, id];
+        } else {
+            updatedDomains = selectedDomain.filter((domain) => domain !== id);
+        }
+        setSelectedDomain(updatedDomains);
+        setFormData({
+            ...formData,
+            domains: updatedDomains.join(", "),
+        });
+    };
     const handleUploadImage = async () => {
         try {
             if (!file) {
@@ -85,6 +105,10 @@ export default function CreatePost() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(formData); // Verificar el contenido de formData antes de enviarlo
+        if (selectedDomain.length === 0) {
+            setPublishError("Debe seleccionar al menos una categoría.");
+            return;
+        }
         try {
             const res = await fetch("/api/post/create", {
                 method: "POST",
@@ -113,16 +137,24 @@ export default function CreatePost() {
             </h1>
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4 sm:flex-col ">
-                    <TextInput
-                        type="text"
-                        placeholder="Título"
-                        required
-                        id="title"
-                        className="flex-1"
-                        onChange={(e) =>
-                            setFormData({ ...formData, title: e.target.value })
-                        }
-                    />
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="title">
+                            Ingresa el título de la publicación
+                        </Label>
+                        <TextInput
+                            type="text"
+                            placeholder="Título"
+                            required
+                            id="title"
+                            className="flex-1"
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    title: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
 
                     <Selection
                         placeholder="Selecciona una categoría"
@@ -143,17 +175,81 @@ export default function CreatePost() {
                         isSearchable={false}
                         closeMenuOnSelect={false}
                     />
-                    <TextInput
-                        type="text"
-                        placeholder="Autor"
-                        required
-                        id="author"
-                        className=""
-                        onChange={(e) =>
-                            setFormData({ ...formData, author: e.target.value })
-                        }
-                    />
-                    <div className="flex flex-auto gap-4">
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="author">
+                            Ingresa el nombre del autor(es)
+                        </Label>
+                        <TextInput
+                            type="text"
+                            placeholder="Autor"
+                            required
+                            id="author"
+                            className=""
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    author: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="domains">
+                            Selecciona una o más categorías
+                        </Label>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="games"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="games">Games</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="mobile"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="mobile">Mobile</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="systems"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="systems">Systems</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="websites"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="websites">Websites</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="interfaces"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="interfaces">Interfaces</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="computers"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="computers">Computers</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="learning"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="learning">Learning</Label>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                        <Label htmlFor="">Estado de validación</Label>
                         <Select
                             id="hasValidation"
                             placeholder="Selecciona una opción"
@@ -172,6 +268,53 @@ export default function CreatePost() {
                             <option value="no">No</option>
                             <option value="parcial">Parcial</option>
                         </Select>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        <Label>Ingresa DOI o enlace de la publicación de origen</Label>
+                        <TextInput
+                            type="text"
+                            required
+                            id="doi"
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    doi: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className="flex flex-col  gap-2">
+                        <Label htmlFor="heuristicNumber">Cantidad de heurísticas</Label>
+                        <TextInput
+                            className="w-fit"
+                            type="number"
+                            required
+                            id="heuristicNumber"
+                            min='1'
+                            max='200'
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    heuristicNumber: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        <Label htmlFor="heuristicList">Ingresa el listado de heurísticas</Label>
+                        <Textarea
+                            type="text"
+                            required
+                            id="heuristicList"
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    heuristicList: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className="">
                         <Select
                             placeholder="Selecciona una opción"
                             required
@@ -195,7 +338,10 @@ export default function CreatePost() {
                         </Select>
                     </div>
                 </div>
+                <div className="flex flex-col gap-3">
+                <Label htmlFor="image">Selecciona una imagen para la portada</Label>
                 <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
+                    
                     <FileInput
                         type="file"
                         accept="image/*"
@@ -221,6 +367,7 @@ export default function CreatePost() {
                         )}
                     </Button>
                 </div>
+                </div>
                 {imageUploadError && (
                     <Alert color="failure">{imageUploadError}</Alert>
                 )}
@@ -231,15 +378,21 @@ export default function CreatePost() {
                         className="w-full h-72 object-cover"
                     />
                 )}
+                <div className="flex flex-col gap-4">
+                <Label htmlFor="content">Contenido de la publicación</Label>
                 <ReactQuill
                     theme="snow"
                     placeholder="Escribe algo..."
                     className="h-72 mb-12"
                     required
                     onChange={(value) =>
-                        setFormData((prevFormData) => ({ ...prevFormData, content: value }))
+                        setFormData((prevFormData) => ({
+                            ...prevFormData,
+                            content: value,
+                        }))
                     }
                 />
+                </div>
                 <Button type="submit" gradientDuoTone="purpleToBlue">
                     Publicar
                 </Button>
