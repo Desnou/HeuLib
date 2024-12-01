@@ -112,7 +112,7 @@ export default function DashPosts() {
                                             {post.title}
                                         </Link>
                                     </Table.Cell>
-                                    <Table.Cell>{post.category}</Table.Cell>
+                                    <Table.Cell>{post.domains}</Table.Cell>
                                     <Table.Cell>
                                     <span
                                             onClick={() => {

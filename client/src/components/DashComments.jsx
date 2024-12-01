@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Button, Modal, Table } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaCheck, FaTimes } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function DashComments() {
     const { currentUser } = useSelector((state) => state.user);
@@ -51,9 +52,12 @@ export default function DashComments() {
     const handleDeleteComment = async () => {
         setShowModal(false);
         try {
-            const res = await fetch(`/api/comment/deleteComment/${commentIdToDelete}`, {
-                method: "DELETE",
-            });
+            const res = await fetch(
+                `/api/comment/deleteComment/${commentIdToDelete}`,
+                {
+                    method: "DELETE",
+                }
+            );
             const data = await res.json();
             if (res.ok) {
                 setComments((prev) =>
@@ -74,10 +78,16 @@ export default function DashComments() {
                 <>
                     <Table hoverable className="shadow-md">
                         <Table.Head>
-                            <Table.HeadCell>Fecha de actualización</Table.HeadCell>
-                            <Table.HeadCell>Contenido del comentario</Table.HeadCell>
+                            <Table.HeadCell>
+                                Fecha de actualización
+                            </Table.HeadCell>
+                            <Table.HeadCell>
+                                Contenido del comentario
+                            </Table.HeadCell>
                             <Table.HeadCell>Total de me gusta</Table.HeadCell>
-                            <Table.HeadCell>Id de publicación</Table.HeadCell>
+                            <Table.HeadCell>
+                                Título de la publicación
+                            </Table.HeadCell>
                             <Table.HeadCell>Id del Usuario</Table.HeadCell>
                             <Table.HeadCell>Borrar</Table.HeadCell>
                         </Table.Head>
@@ -89,19 +99,21 @@ export default function DashComments() {
                                             comment.updatedAt
                                         ).toLocaleDateString()}
                                     </Table.Cell>
+                                    <Table.Cell>{comment.content}</Table.Cell>
                                     <Table.Cell>
-                                    {comment.content}
+                                        {comment.numberOfLikes}
                                     </Table.Cell>
-                                    <Table.Cell>{comment.numberOfLikes}</Table.Cell>
-                                    <Table.Cell>{comment.postId}</Table.Cell>
                                     <Table.Cell>
-                                        {comment.userId}
+                                        {comment.title}
                                     </Table.Cell>
+                                    <Table.Cell>{comment.userId}</Table.Cell>
                                     <Table.Cell>
                                         <span
                                             onClick={() => {
                                                 setShowModal(true);
-                                                setCommentIdToDelete(comment._id);
+                                                setCommentIdToDelete(
+                                                    comment._id
+                                                );
                                             }}
                                             className="font-medium text-red-500 hover:underline cursor-pointer"
                                         >
@@ -138,7 +150,10 @@ export default function DashComments() {
                             Estas seguro que quieres eliminar este comentario?
                         </h3>
                         <div className="flex justify-center gap-5">
-                            <Button color="failure" onClick={handleDeleteComment}>
+                            <Button
+                                color="failure"
+                                onClick={handleDeleteComment}
+                            >
                                 Si, eliminar
                             </Button>
                             <Button

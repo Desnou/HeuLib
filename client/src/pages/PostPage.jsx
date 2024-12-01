@@ -65,10 +65,10 @@ export default function PostPage() {
             </h1>
             <div className="flex flex-wrap justify-center border-b border-slate-500">
                 {post &&
-                    post.category.split(",").map((cat, index) => (
+                    post.domains.split(",").map((cat, index) => (
                         <Link
                             key={index}
-                            to={`/search?category=${cat.trim()}`}
+                            to={`/search?domains=${cat.trim()}`}
                             className="mt-5 mb-5 mx-1"
                         >
                             <Button key={index} color="gray" pill size="xs">

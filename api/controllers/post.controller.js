@@ -11,10 +11,12 @@ export const create = async (req, res, next) => {
     if (
         !req.body.title ||
         !req.body.content ||
-        !req.body.category ||
+        !req.body.domains ||
         !req.body.author ||
         !req.body.hasValidation ||
-        !req.body.heuristicCount
+        !req.body.heuristicNumber ||
+        !req.body.doi ||
+        !req.body.heuristicList
     ) {
         return next(errorHandler(400, "Faltan campos obligatorios"));
     }
@@ -28,6 +30,7 @@ export const create = async (req, res, next) => {
         slug,
         userId: req.user.id,
     });
+    req.slug = slug; // Store the slug in the request object for later use
     try {
         const savedPost = await newPost.save();
         res.status(201).json(savedPost);
@@ -43,8 +46,8 @@ export const getposts = async (req, res, next) => {
         const sortDirection = req.query.order === 'asc' ? 1 : -1;
         const posts = await Post.find({
             ...(req.query.userId && { userId: req.query.userId }),
-            ...(req.query.category && {
-                category: { $regex: req.query.category, $options: "i" },
+            ...(req.query.domains && {
+                domains: { $regex: req.query.domains, $options: "i" },
             }),
             ...(req.query.slug && { slug: req.query.slug }),
             ...(req.query.postId && { _id: req.query.postId }),
@@ -59,7 +62,7 @@ export const getposts = async (req, res, next) => {
                         },
                     },
                     {
-                        category: {
+                        domains: {
                             $regex: req.query.searchTerm,
                             $options: "i",
                         },
@@ -120,11 +123,14 @@ export const updatepost = async (req, res, next) => {
                 $set: {
                     title: req.body.title,
                     content: req.body.content,
-                    category: req.body.category,
+                    domains: req.body.domains,
                     author: req.body.author,
                     hasValidation: req.body.hasValidation,
-                    heuristicCount: req.body.heuristicCount,
+                    heuristicNumber: req.body.heuristicNumber,
                     image: req.body.image,
+                    doi: req.body.doi,
+                    heuristicList: req.body.heuristicList,
+
                 },
             },
             { new: true }
@@ -136,7 +142,7 @@ export const updatepost = async (req, res, next) => {
 };
 
 export const suggestpost = async (req, res, next) => {
-    if (!req.body.title || !req.body.content || !req.body.category || !req.body.author || !req.body.hasValidation || !req.body.heuristicCount) {
+    if (!req.body.title || !req.body.content || !req.body.domains || !req.body.author || !req.body.hasValidation || !req.body.heuristicNumber) {
         return next(errorHandler(400, "Faltan campos obligatorios"));
     }
     const slug = req.body.title.split(" ").join("-").toLowerCase().replace(/[^a-zA-Z0-9-]/g, "");
@@ -160,8 +166,8 @@ export const getsuggestedposts = async (req, res, next) => {
         const sortDirection = req.query.order === 'asc' ? 1 : -1;
         const suggestedposts = await SuggestPost.find({
             ...(req.query.userId && { userId: req.query.userId }),
-            ...(req.query.category && {
-                category: { $regex: req.query.category, $options: "i" },
+            ...(req.query.domains && {
+                domains: { $regex: req.query.domains, $options: "i" },
             }),
             ...(req.query.slug && { slug: req.query.slug }),
             ...(req.query.postId && { _id: req.query.postId }),
@@ -176,7 +182,7 @@ export const getsuggestedposts = async (req, res, next) => {
                         },
                     },
                     {
-                        category: {
+                        domains: {
                             $regex: req.query.searchTerm,
                             $options: "i",
                         },

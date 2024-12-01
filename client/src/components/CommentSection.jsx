@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import Comment from "./Comment";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { useParams } from "react-router-dom";
+import Post from "../../../api/models/post.model";
 
 export default function CommentSection({ postId }) {
     const { currentUser } = useSelector((state) => state.user);
@@ -14,11 +16,13 @@ export default function CommentSection({ postId }) {
     const [commentToDelete, setCommentToDelete] = useState(null);
     const navigate = useNavigate();
     console.log(comments);
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (comment.length > 200) {
             return;
         }
+    
         try {
             const res = await fetch("/api/comment/create", {
                 method: "POST",
@@ -28,10 +32,13 @@ export default function CommentSection({ postId }) {
                 body: JSON.stringify({
                     content: comment,
                     postId,
+                    slugPost,
                     userId: currentUser._id,
+                    
                 }),
             });
             const data = await res.json();
+            console.log(`El slug es : ${slug}`);
             if (res.ok) {
                 setComment("");
                 setCommentError(null);

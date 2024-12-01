@@ -8,7 +8,7 @@ export default function Search() {
     const [sidebarData, setSidebarData] = useState({
         searchTerm: "",
         sort: "desc",
-        category: "uncategorized",
+        domains: "uncategorized",
     });
     console.log(sidebarData);
     const [posts, setPosts] = useState([]);
@@ -32,13 +32,13 @@ export default function Search() {
         const urlParams = new URLSearchParams(location.search);
         const searchTermFromUrl = urlParams.get("searchTerm");
         const sortFromUrl = urlParams.get("sort");
-        const categoryFromUrl = urlParams.get("category");
-        if (searchTermFromUrl || sortFromUrl || categoryFromUrl) {
+        const domainsFromUrl = urlParams.get("domains");
+        if (searchTermFromUrl || sortFromUrl || domainsFromUrl) {
             setSidebarData({
                 ...sidebarData,
                 searchTerm: searchTermFromUrl,
                 sort: sortFromUrl,
-                category: categoryFromUrl,
+                domains: domainsFromUrl,
             });
         }
         const fetchPosts = async () => {
@@ -70,12 +70,12 @@ export default function Search() {
             const order = e.target.value || "desc";
             setSidebarData({ ...sidebarData, sort: order });
         }
-        if (e.target.id === "category") {
-            const category = e.target.value || "uncategorized";
-            setSidebarData({ ...sidebarData, category });
+        if (e.target.id === "domains") {
+            const domains = e.target.value || "uncategorized";
+            setSidebarData({ ...sidebarData, domains });
         }
     };
-    const handleCategoryChange = (selectedOption) => {
+    const handleDomainsChange = (selectedOption) => {
         setSelectedOptions(selectedOption);
     };
 
@@ -84,7 +84,7 @@ export default function Search() {
         const urlParams = new URLSearchParams(location.search);
         urlParams.set("searchTerm", sidebarData.searchTerm);
         urlParams.set("order", sidebarData.sort);
-        urlParams.set("category", sidebarData.category);
+        urlParams.set("domains", sidebarData.domains);
         const searchQuery = urlParams.toString();
         navigate(`/search?${searchQuery}`);
     };
@@ -140,14 +140,14 @@ export default function Search() {
                         <Selection
                             placeholder="Selecciona una categoría"
                             type="string"
-                            id="category"
+                            id="domains"
                             options={options}
                             value={selectedOptions}
                             onChange={(selectedOption) => {
-                                handleCategoryChange(selectedOption);
+                                handleDomainsChange(selectedOption);
                                 setSidebarData({
                                     ...sidebarData,
-                                    category: selectedOption
+                                    domains: selectedOption
                                         .map((option) => option.value)
                                         .join(", "),
                                 });

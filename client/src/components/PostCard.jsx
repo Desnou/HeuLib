@@ -14,7 +14,7 @@ export default function PostCard({ post }) {
                 <p className="text-lg font-semibold line-clamp-2">
                     {post.title}
                 </p>
-                <span className="italic text-sm">{post.category}</span>
+                <span className="italic text-sm">{post.domains}</span>
                 <span className="text-sm text-gray-500">Autor: {post.author}</span>
                 <Link
                     to={`/post/${post.slug}`}

@@ -12,7 +12,6 @@ import {
 } from "flowbite-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import Selection from "react-select";
 import { useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -25,24 +24,12 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase";
 
-const options = [
-    { value: "games", label: "Games" },
-    { value: "mobile", label: "Mobile" },
-    { value: "systems", label: "Systems" },
-    { value: "websites", label: "Websites" },
-    { value: "applications", label: "Applications" },
-    { value: "interfaces", label: "Interfaces" },
-    { value: "computers", label: "Computers" },
-    { value: "learning", label: "Learning" },
-];
-
 export default function CreatePost() {
     const [file, setFile] = useState(null);
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
     const [formData, setFormData] = useState({});
     const navigate = useNavigate();
-    const [selectedOptions, setSelectedOptions] = useState([]);
     const [publishError, setPublishError] = useState(null);
     const [selectedDomain, setSelectedDomain] = useState([]);
     console.log(formData);
@@ -99,9 +86,7 @@ export default function CreatePost() {
             console.log(error);
         }
     };
-    const handleCategoryChange = (selectedOption) => {
-        setSelectedOptions(selectedOption);
-    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(formData); // Verificar el contenido de formData antes de enviarlo
@@ -155,26 +140,6 @@ export default function CreatePost() {
                             }
                         />
                     </div>
-
-                    <Selection
-                        placeholder="Selecciona una categoría"
-                        type="string"
-                        id="category"
-                        options={options}
-                        value={selectedOptions}
-                        onChange={(selectedOption) => {
-                            handleCategoryChange(selectedOption);
-                            setFormData({
-                                ...formData,
-                                category: selectedOption
-                                    .map((option) => option.value)
-                                    .join(", "),
-                            });
-                        }}
-                        isMulti
-                        isSearchable={false}
-                        closeMenuOnSelect={false}
-                    />
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="author">
                             Ingresa el nombre del autor(es)
@@ -199,31 +164,31 @@ export default function CreatePost() {
                         </Label>
                         <div className="flex items-center gap-2">
                             <Checkbox
-                                id="games"
+                                id="juegos"
                                 onChange={handleDomainChange}
                             />
-                            <Label htmlFor="games">Games</Label>
+                            <Label htmlFor="juegos">Juegos</Label>
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
-                                id="mobile"
+                                id="movil"
                                 onChange={handleDomainChange}
                             />
-                            <Label htmlFor="mobile">Mobile</Label>
+                            <Label htmlFor="movil">Movil</Label>
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
-                                id="systems"
+                                id="sistemas"
                                 onChange={handleDomainChange}
                             />
-                            <Label htmlFor="systems">Systems</Label>
+                            <Label htmlFor="sistemas">Sistemas</Label>
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
-                                id="websites"
+                                id="plataformas-web"
                                 onChange={handleDomainChange}
                             />
-                            <Label htmlFor="websites">Websites</Label>
+                            <Label htmlFor="plataformas-web">Plataformas Web</Label>
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
@@ -234,17 +199,17 @@ export default function CreatePost() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
-                                id="computers"
+                                id="Computadoras"
                                 onChange={handleDomainChange}
                             />
-                            <Label htmlFor="computers">Computers</Label>
+                            <Label htmlFor="Computadoras">Computadoras</Label>
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
-                                id="learning"
+                                id="aprendizaje"
                                 onChange={handleDomainChange}
                             />
-                            <Label htmlFor="learning">Learning</Label>
+                            <Label htmlFor="aprendizaje">Aprendizaje</Label>
                         </div>
                     </div>
 
@@ -314,29 +279,7 @@ export default function CreatePost() {
                             }
                         />
                     </div>
-                    <div className="">
-                        <Select
-                            placeholder="Selecciona una opción"
-                            required
-                            id="heuristicCount"
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    heuristicCount: e.target.value,
-                                })
-                            }
-                        >
-                            <option value="uncategorized">
-                                Cantidad de heurísticas
-                            </option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                        </Select>
-                    </div>
+                    
                 </div>
                 <div className="flex flex-col gap-3">
                 <Label htmlFor="image">Selecciona una imagen para la portada</Label>

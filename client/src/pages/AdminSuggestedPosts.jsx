@@ -39,7 +39,7 @@ const AdminSuggestedPosts = () => {
                         <Table.Row key={post._id}>
                             <Table.Cell>{post.title}</Table.Cell>
                             <Table.Cell>{post.author.username}</Table.Cell>
-                            <Table.Cell>{post.category}</Table.Cell>
+                            <Table.Cell>{post.domains}</Table.Cell>
                             <Table.Cell>
                                 <Button onClick={() => handleApprove(post._id)}>Approve</Button>
                             </Table.Cell>

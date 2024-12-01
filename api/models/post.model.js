@@ -14,11 +14,6 @@ const postSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        category: {
-            type: String,
-            required: true,
-            default: "uncategorized",
-        },
         domains: {
             type: String,
             required: true,
@@ -40,10 +35,7 @@ const postSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        heuristicCount: {
-            type: String,
-            required: true,
-        },
+
         heuristicNumber: {
             type: Number,
             required: true,
