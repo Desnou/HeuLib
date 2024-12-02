@@ -2,7 +2,7 @@ import Comment from "../models/comment.model.js";
 
 export const createComment = async (req, res, next) => {
     try {
-        const { content, postId, userId, slugPost } = req.body;
+        const { content, postId, userId, slugPost, titlePost } = req.body;
         if (userId !== req.user.id) {
             return next(
                 errorHandler(403, "No tienes permiso para realizar esta acción")
@@ -12,13 +12,9 @@ export const createComment = async (req, res, next) => {
             content,
             postId,
             userId,
-            slugPost: req.slug,
+            slugPost,
+            titlePost,
         });
-        const post = await post.findById(postId);
-        if (!post) {
-            return next(errorHandler(404, "Publicación no encontrada"));
-        }
-        newComment.slugPost = post.slug;
         await newComment.save();
         res.status(200).json(newComment);
     } catch (error) {
@@ -76,6 +72,7 @@ export const editComment = async (req, res, next) => {
             {
                 content: req.body.content,
                 slugPost: req.body.slugPost, // Ensure slugPost is updated if needed
+                titlePost: req.body.titlePost, // Ensure titlePost is updated if needed
             },
             { new: true }
         );

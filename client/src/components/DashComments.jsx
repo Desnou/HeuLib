@@ -104,7 +104,12 @@ export default function DashComments() {
                                         {comment.numberOfLikes}
                                     </Table.Cell>
                                     <Table.Cell>
-                                        {comment.title}
+                                        <Link
+                                            className="font-medium text-gray-900"
+                                            to={`/post/${comment.slugPost}`}
+                                        >
+                                            {comment.titlePost}
+                                        </Link>
                                     </Table.Cell>
                                     <Table.Cell>{comment.userId}</Table.Cell>
                                     <Table.Cell>

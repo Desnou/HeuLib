@@ -110,7 +110,7 @@ export default function PostPage() {
             <div className="max-w-4xl mx-auto w-full">
                 <CallToAction />
             </div>
-            <CommentSection postId={post._id} />
+            <CommentSection postId={post._id} slugPost={post.slug} titlePost={post.title}/>
             <div className="flex flex-col justify-center items-center mb-5">
                 <h1 className="text-xl mt-5">Publicaciones Recientes</h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5 justify-center">

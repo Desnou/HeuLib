@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth';
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
+import { set } from 'mongoose';
 
 // Componente principal de registro de usuario
 export default function SignUp() {
@@ -44,12 +45,12 @@ export default function SignUp() {
         // Obtener la respuesta de la API
         const data = await res.json();
         if (data.success === false) {
-          return setError(data.message);
-          
+          setLoading(false);
+          return setError('Las credenciales proporcionadas ya están en uso');
         }
-        // console.log(data);
+      
         setLoading(false);
-        // setError(null);
+        
         if(res.ok) {
           navigate('/sign-in');
         }

@@ -7,7 +7,7 @@ import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useParams } from "react-router-dom";
 import Post from "../../../api/models/post.model";
 
-export default function CommentSection({ postId }) {
+export default function CommentSection({ postId, slugPost, titlePost }) {
     const { currentUser } = useSelector((state) => state.user);
     const [comment, setComment] = useState("");
     const [commentError, setCommentError] = useState(null);
@@ -32,13 +32,14 @@ export default function CommentSection({ postId }) {
                 body: JSON.stringify({
                     content: comment,
                     postId,
-                    slugPost,
                     userId: currentUser._id,
+                    slugPost: slugPost,
+                    titlePost: titlePost,
                     
                 }),
             });
             const data = await res.json();
-            console.log(`El slug es : ${slug}`);
+            
             if (res.ok) {
                 setComment("");
                 setCommentError(null);

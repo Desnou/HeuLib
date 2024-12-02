@@ -1,6 +1,8 @@
 import Post from "../models/post.model.js";
 import SuggestPost from "../models/suggestpost.model.js";
 import { errorHandler } from "../utils/error.js";
+import Comment from "../models/comment.model.js";
+
 
 export const create = async (req, res, next) => {
     if (!req.user.isAdmin) {
@@ -30,7 +32,6 @@ export const create = async (req, res, next) => {
         slug,
         userId: req.user.id,
     });
-    req.slug = slug; // Store the slug in the request object for later use
     try {
         const savedPost = await newPost.save();
         res.status(201).json(savedPost);
@@ -117,6 +118,8 @@ export const updatepost = async (req, res, next) => {
         );
     }
     try {
+        const { title, ...rest } = req.body;
+        const post = await Post.findById(req.params.postId);
         const updatedPost = await Post.findByIdAndUpdate(
             req.params.postId,
             {
@@ -135,6 +138,15 @@ export const updatepost = async (req, res, next) => {
             },
             { new: true }
         );
+        // Actualizar el post
+        post.title = title;
+        Object.assign(post, rest);
+        await post.save();
+        await Comment.updateMany(
+            { postId: post._id },
+            { $set: { titlePost: title } }
+        );
+        
         res.status(200).json(updatedPost);
     } catch (error) {
         next(error);

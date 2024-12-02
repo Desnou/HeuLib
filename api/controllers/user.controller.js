@@ -62,6 +62,17 @@ export const updateUser = async (req, res, next) => {
             );
         }
     }
+    const user = await User.findById(req.params.userId);
+    if (user.isGoogleUser) {
+        if (req.body.email || req.body.password) {
+            return next(
+                errorHandler(
+                    400,
+                    "No puedes editar el email o la contraseña de un usuario que inició sesión con Google"
+                )
+            );
+        }
+    }
     try {
         const updatedUser = await User.findByIdAndUpdate(
             req.params.userId,
