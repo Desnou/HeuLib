@@ -79,14 +79,38 @@ export default function PostPage() {
             </div>
             <div className="flex justify-center gap-2 p-2">
                 <span className="font-semibold text-lg text-gray-700">
-                    Autor :{" "}
+                    Autor(es) :{" "}
                 </span>
-                <Link
-                    to={`/search?author=${post && post.author}`}
-                    className="font-bold text-lg hover:underline italic"
-                >
-                    {post && post.author}
-                </Link>
+                {post &&
+                    post.author.split(",").map((author, index, array) => (
+                        <span key={index}>
+                            <Link
+                                to={`/search?author=${author.trim()}`}
+                                className="font-bold text-lg hover:underline italic"
+                            >
+                                {author.trim()}
+                            </Link>
+                            {index < array.length - 1 && ", "}
+                        </span>
+                    ))}
+            </div>
+            <div className="flex justify-center gap-2 p-2">
+                <span className="font-semibold text-lg text-gray-700">
+                    Publicación de origen o DOI:{" "}
+                </span>
+                {post && post.doi.split(",").map((doi, index) => (
+                    <a
+                        key={index}
+                        href={doi.trim()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-bold text-lg hover:underline italic text-blue-600"
+                    >
+                        {`${doi.trim()}`} 
+                    </a>
+                    
+                ))}
+                
             </div>
             <img
                 src={post && post.image}
@@ -105,6 +129,12 @@ export default function PostPage() {
             <div className="p-3 max-w-2xl mx-auto w-full post-content">
                 <div
                     dangerouslySetInnerHTML={{ __html: post && post.content }}
+                />
+            </div>
+            <div className="p-3 max-w-2xl mx-auto w-full post-content">
+                <h2 className="text-2xl font-semibold mb-4">Listado de Heurísticas</h2>
+                <div
+                    dangerouslySetInnerHTML={{ __html: post && post.heuristicList }}
                 />
             </div>
             <div className="max-w-4xl mx-auto w-full">

@@ -42,6 +42,7 @@ export default function CreatePost() {
         } else {
             updatedDomains = selectedDomain.filter((domain) => domain !== id);
         }
+        updatedDomains.sort();
         setSelectedDomain(updatedDomains);
         setFormData({
             ...formData,
@@ -199,7 +200,7 @@ export default function CreatePost() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
-                                id="Computadoras"
+                                id="computadoras"
                                 onChange={handleDomainChange}
                             />
                             <Label htmlFor="Computadoras">Computadoras</Label>
@@ -237,7 +238,8 @@ export default function CreatePost() {
                     <div className="flex flex-col gap-4">
                         <Label>Ingresa DOI o enlace de la publicación de origen</Label>
                         <TextInput
-                            type="text"
+                            type="url"
+                            placeholder="Si es mas de un enlace separarlos por comas"
                             required
                             id="doi"
                             onChange={(e) =>
@@ -267,15 +269,18 @@ export default function CreatePost() {
                     </div>
                     <div className="flex flex-col gap-4">
                         <Label htmlFor="heuristicList">Ingresa el listado de heurísticas</Label>
-                        <Textarea
-                            type="text"
+                        <ReactQuill
+                            theme="snow"
+                            placeholder="Por favor ingresa el listado de heurísticas en forma de listas o enumeradas
+
+                            "
+                            className="h-30 mb-12"
                             required
-                            id="heuristicList"
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    heuristicList: e.target.value,
-                                })
+                            onChange={(value) =>
+                                setFormData((prevFormData) => ({
+                                    ...prevFormData,
+                                    heuristicList: `<ul>${value.split('\n').map(item => `<li>${item}</li>`).join('')}</ul>`,
+                                }))
                             }
                         />
                     </div>

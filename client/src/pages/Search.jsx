@@ -1,4 +1,4 @@
-import { Button, Select, TextInput } from "flowbite-react";
+import { Button, Checkbox, Label, Select, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -8,39 +8,71 @@ export default function Search() {
     const [sidebarData, setSidebarData] = useState({
         searchTerm: "",
         sort: "desc",
-        domains: "uncategorized",
+        domains: "",
+        author: "",
+        hasValidation: "",
     });
     console.log(sidebarData);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [showMore, setShowMore] = useState(false);
-    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [selectedDomain, setSelectedDomain] = useState([]);
     const location = useLocation();
     const navigate = useNavigate();
-    const options = [
-        { value: "", label: "Sin categoría" },
-        { value: "games", label: "Games" },
-        { value: "mobile", label: "Mobile" },
-        { value: "systems", label: "Systems" },
-        { value: "websites", label: "Websites" },
-        { value: "applications", label: "Applications" },
-        { value: "interfaces", label: "Interfaces" },
-        { value: "computers", label: "Computers" },
-        { value: "learning", label: "Learning" },
-    ];
+    
+
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
         const searchTermFromUrl = urlParams.get("searchTerm");
         const sortFromUrl = urlParams.get("sort");
         const domainsFromUrl = urlParams.get("domains");
-        if (searchTermFromUrl || sortFromUrl || domainsFromUrl) {
+        const authorFromUrl = urlParams.get("author");
+        const hasValidationFromUrl = urlParams.get("hasValidation");
+        
+        if (searchTermFromUrl || sortFromUrl || domainsFromUrl || authorFromUrl || hasValidationFromUrl) {
             setSidebarData({
                 ...sidebarData,
                 searchTerm: searchTermFromUrl,
                 sort: sortFromUrl,
                 domains: domainsFromUrl,
+                author: authorFromUrl,
+                hasValidation: hasValidationFromUrl,
+                
+                
             });
         }
+        if (!searchTermFromUrl) {
+            setSidebarData((prevData) => ({
+            ...prevData,
+            searchTerm: "",
+            }));
+        }
+        if (!sortFromUrl) {
+            setSidebarData((prevData) => ({
+            ...prevData,
+            sort: "desc",
+            }));
+        }
+        if (!domainsFromUrl) {
+            setSidebarData((prevData) => ({
+            ...prevData,
+            domains: "",
+            }));
+        }
+        if (!authorFromUrl) {
+            setSidebarData((prevData) => ({
+            ...prevData,
+            author: "",
+            }));
+        }
+        if (!hasValidationFromUrl) {
+            setSidebarData((prevData) => ({
+            ...prevData,
+            hasValidation: "",
+            }));
+        }
+
+
         const fetchPosts = async () => {
             setLoading(true);
             const searchQuery = urlParams.toString();
@@ -71,13 +103,33 @@ export default function Search() {
             setSidebarData({ ...sidebarData, sort: order });
         }
         if (e.target.id === "domains") {
-            const domains = e.target.value || "uncategorized";
+            const domains = e.target.value || "";
             setSidebarData({ ...sidebarData, domains });
         }
+        if (e.target.id === "author") {
+            const author = e.target.value || "";
+            setSidebarData({ ...sidebarData, author });
+        }
+        if (e.target.id === "hasValidation") {
+            const hasValidation = e.target.value || "";
+            setSidebarData({ ...sidebarData, hasValidation });
+        }
     };
-    const handleDomainsChange = (selectedOption) => {
-        setSelectedOptions(selectedOption);
-    };
+const handleDomainChange = (e) => {
+    const { id, checked } = e.target;
+    let updatedDomains;
+    if (checked) {
+        updatedDomains = [...selectedDomain, id];
+    } else {
+        updatedDomains = selectedDomain.filter((domain) => domain !== id);
+    }
+    updatedDomains.sort();
+    setSelectedDomain(updatedDomains);
+    setSidebarData({
+        ...sidebarData,
+        domains: updatedDomains.join(", "),
+    });
+};
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -85,6 +137,10 @@ export default function Search() {
         urlParams.set("searchTerm", sidebarData.searchTerm);
         urlParams.set("order", sidebarData.sort);
         urlParams.set("domains", sidebarData.domains);
+        urlParams.set("author", sidebarData.author);
+        urlParams.set("sort", sidebarData.sort);
+        urlParams.set("hasValidation", sidebarData.hasValidation);
+    
         const searchQuery = urlParams.toString();
         navigate(`/search?${searchQuery}`);
     };
@@ -112,7 +168,7 @@ export default function Search() {
         <div className="flex flex-col md:flex-row">
             <div className="p-7 border-b md:border-r md:min-h-screen border-gray-500">
                 <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
-                    <div className="flex   items-center gap-2">
+                    <div className="flex flex-col  gap-2">
                         <label className="whitespace-nowrap font-semibold">
                             Buscar por tema:
                         </label>
@@ -124,7 +180,7 @@ export default function Search() {
                             onChange={handleChange}
                         />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-2">
                         <label className="font-semibold">Orden:</label>
                         <Select
                             onChange={handleChange}
@@ -135,27 +191,61 @@ export default function Search() {
                             <option value="asc">Antiguo</option>
                         </Select>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <label className="font-semibold">Categoría:</label>
-                        <Selection
-                            placeholder="Selecciona una categoría"
-                            type="string"
-                            id="domains"
-                            options={options}
-                            value={selectedOptions}
-                            onChange={(selectedOption) => {
-                                handleDomainsChange(selectedOption);
-                                setSidebarData({
-                                    ...sidebarData,
-                                    domains: selectedOption
-                                        .map((option) => option.value)
-                                        .join(", "),
-                                });
-                            }}
-                            isMulti
-                            isSearchable={false}
-                            closeMenuOnSelect={false}
+                    <div className="flex flex-col gap-2">
+                        <label className="font-semibold">Buscar por autor:</label>
+                        <TextInput
+                            placeholder="Autor..."
+                            id="author"
+                            type="text"
+                            value={sidebarData.author}
+                            onChange={(e) =>
+                                setSidebarData({ ...sidebarData, author: e.target.value })
+                            }
                         />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="font-semibold">Estado de validación:</label>
+                        <Select
+                            onChange={handleChange}
+                            value={sidebarData.hasValidation}
+                            id="hasValidation"
+                        >
+                            <option value="">Selecciona una opción</option>
+                            <option value="si">Si</option>
+                            <option value="no">No</option>
+                            <option value="parcial">Parcial</option>
+                        </Select>
+                    </div>
+                    <div className="flex flex-col gap-2 mb">
+                        <Label className="mb-2" htmlFor="domains">Selecciona una o más categorías :</Label>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="juegos" onChange={handleDomainChange} checked={selectedDomain.includes("juegos")} />
+                            <Label htmlFor="juegos">Juegos</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="movil" onChange={handleDomainChange} checked={selectedDomain.includes("movil")} />
+                            <Label htmlFor="movil">Movil</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="sistemas" onChange={handleDomainChange} checked={selectedDomain.includes("sistemas")} />
+                            <Label htmlFor="sistemas">Sistemas</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="plataformas-web" onChange={handleDomainChange} checked={selectedDomain.includes("plataformas-web")} />
+                            <Label htmlFor="plataformas-web">Plataformas Web</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="interfaces" onChange={handleDomainChange} checked={selectedDomain.includes("interfaces")} />
+                            <Label htmlFor="interfaces">Interfaces</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="computadoras" onChange={handleDomainChange} checked={selectedDomain.includes("computadoras")} />
+                            <Label htmlFor="Computadoras">Computadoras</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="aprendizaje" onChange={handleDomainChange} checked={selectedDomain.includes("aprendizaje")} />
+                            <Label htmlFor="aprendizaje">Aprendizaje</Label>
+                        </div>
                     </div>
                     <Button
                         type="submit"

@@ -67,6 +67,7 @@ export default function UpdatePost() {
         } else {
             updatedDomains = selectedDomain.filter((domain) => domain !== id);
         }
+        updatedDomains.sort();
         setSelectedDomain(updatedDomains);
         setFormData({
             ...formData,

@@ -48,27 +48,29 @@ export const getposts = async (req, res, next) => {
         const posts = await Post.find({
             ...(req.query.userId && { userId: req.query.userId }),
             ...(req.query.domains && {
-                domains: { $regex: req.query.domains, $options: "i" },
+            domains: { $regex: new RegExp(req.query.domains.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), "i") },
             }),
             ...(req.query.slug && { slug: req.query.slug }),
             ...(req.query.postId && { _id: req.query.postId }),
-            ...(req.query.author && { author: req.query.author }),
+            ...(req.query.author && {
+            author: { $regex: new RegExp(req.query.author.normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(",").map(a => a.trim()).join("|"), "i") },
+            }),
+            ...(req.query.hasValidation && { hasValidation: req.query.hasValidation }),
             ...(req.query.searchTerm && {
-                $or: [
-                    { title: { $regex: req.query.searchTerm, $options: "i" } },
-                    {
-                        content: {
-                            $regex: req.query.searchTerm,
-                            $options: "i",
-                        },
-                    },
-                    {
-                        domains: {
-                            $regex: req.query.searchTerm,
-                            $options: "i",
-                        },
-                    },
-                ],
+            $or: [
+                { title: { $regex: req.query.searchTerm.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), $options: "i" } },
+                {
+                content: {
+                    $regex: req.query.searchTerm.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), $options: "i",
+                },
+                },
+                {
+                domains: {
+                    $regex: req.query.searchTerm.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), $options: "i",
+                },
+                },
+                { author: { $regex: req.query.searchTerm.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), $options: "i" } },
+            ],
             }),
         })
             .sort({ updatedAt: sortDirection })

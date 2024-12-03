@@ -96,7 +96,7 @@ export default function DashSidebar() {
                                     icon={HiUserGroup}
                                     as="div"
                                 >
-                                    Users
+                                    Usuarios
                                 </Sidebar.Item>
                             </Link>
                             <Link to="/dashboard?tab=comments">
