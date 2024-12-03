@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth';
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
-import { set } from 'mongoose';
+
 
 // Componente principal de registro de usuario
 export default function SignUp() {

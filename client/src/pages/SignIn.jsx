@@ -1,20 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
-import { useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 // Componente principal de registro de usuario
 export default function SignIn() {
   // Estado para almacenar los datos del formulario
   const [formData, setFormData] = useState({});
   
-  const {loading, error: error} = useSelector((state) => state.user);
+  const { loading, error } = useSelector((state) => state.user);
   // Hook para la navegación programática
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // Restablecer el estado de error al montar el componente
+  useEffect(() => {
+    dispatch(signInFailure(null));
+  }, [dispatch]);
 
   // Función para manejar los cambios en los campos del formulario
   const handleChange = (e) => {
@@ -27,6 +32,7 @@ export default function SignIn() {
   // Función para manejar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(signInFailure(null)); // Restablecer el estado de error al enviar el formulario
     if (!formData.email || !formData.password) {
       return dispatch(signInFailure("Por favor llena todos los campos del formulario"));
     }
@@ -41,7 +47,8 @@ export default function SignIn() {
       // Obtener la respuesta de la API
       const data = await res.json();
       if (data.success === false) {
-        dispatch(signInFailure(data.message));
+        dispatch(signInFailure(`${data.message}`));
+        console.log(data.message);
       }
       if (res.ok) {
         dispatch(signInSuccess(data));
@@ -51,6 +58,7 @@ export default function SignIn() {
       dispatch(signInFailure(error.message));
     }
   };
+
   return (
     <div className="ming-h-screen mt-20 ">
       <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
@@ -58,7 +66,7 @@ export default function SignIn() {
         <div className="flex-1">
           <Link to="/" className=" font-bold">
             <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white text-4xl">
-              Heuro
+              Heuristics
             </span>
             <span className=" text-4xl text-slate-700">Lib</span>
           </Link>

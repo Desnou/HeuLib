@@ -1,7 +1,8 @@
 import { Alert, Button, Modal, TextInput } from "flowbite-react";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
     getDownloadURL,
     getStorage,
@@ -21,7 +22,6 @@ import {
     deleteUserFailure,
     signOutSuccess,
 } from "../redux/user/userSlice";
-import { useDispatch } from "react-redux";
 
 export default function DashProfile() {
     const { currentUser, error, loading } = useSelector((state) => state.user);
@@ -34,9 +34,12 @@ export default function DashProfile() {
     const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
     const [updateUserError, setUpdateUserError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState({
+        username: currentUser.username,
+    });
     const filePickerRef = useRef(null);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -91,7 +94,68 @@ export default function DashProfile() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setUpdateUserError(null);
+
         setUpdateUserSuccess(null);
+        if (
+            (!formData.username || formData.username.trim() === "") &&
+            formData.username !== currentUser.username
+        ) {
+            setUpdateUserError("El nombre de usuario no puede estar vacío");
+            return;
+        }
+        if ("email" in formData && formData.email.trim() === "") {
+            setUpdateUserError("El email no puede estar vacío");
+            return;
+        }
+        if (formData.password && formData.password.trim() === "") {
+            setUpdateUserError("La contraseña no puede estar vacía");
+            return;
+        }
+        if (formData.password && formData.password.length < 6) {
+            setUpdateUserError(
+                "La contraseña debe tener al menos 6 caracteres"
+            );
+            return;
+        }
+        if (formData.username && formData.username.length < 7) {
+            setUpdateUserError(
+                "El nombre de usuario debe tener al menos 7 caracteres"
+            );
+            return;
+        }
+        if (formData.username && formData.username.length > 20) {
+            setUpdateUserError(
+                "El nombre de usuario no puede tener más de 20 caracteres"
+            );
+            return;
+        }
+        if (formData.username && formData.username.includes(" ")) {
+            setUpdateUserError(
+                "El nombre de usuario no puede contener espacios"
+            );
+            return;
+        }
+        if (
+            formData.username &&
+            formData.username !== formData.username.toLowerCase()
+        ) {
+            setUpdateUserError("El nombre de usuario debe estar en minúsculas");
+            return;
+        }
+        if (formData.username && !formData.username.match(/^[a-zA-Z0-9]+$/)) {
+            setUpdateUserError(
+                "El nombre de usuario solo puede contener letras y números"
+            );
+            return;
+        }
+        if (formData.email && !formData.email.includes("@")) {
+            setUpdateUserError("El email no es válido");
+            return;
+        }
+        if (formData.email && !formData.email.includes(".")) {
+            setUpdateUserError("El email no es válido");
+            return;
+        }
         if (Object.keys(formData).length === 0) {
             setUpdateUserError("Por favor llena al menos un campo");
             return;
@@ -100,8 +164,26 @@ export default function DashProfile() {
             setUpdateUserError("Espera a que la imagen se cargue");
             return;
         }
+
+        if (currentUser.isGoogleUser && (formData.email || formData.password)) {
+            setUpdateUserError(
+                "No puedes editar el email o la contraseña de un usuario que inició sesión con Google"
+            );
+            return;
+        }
+        if (
+            currentUser.username === formData.username &&
+            currentUser.email === formData.email &&
+            !formData.password &&
+            !imageFile
+        ) {
+            setUpdateUserError("No se ha modificado ningún campo");
+            return;
+        }
+        setUpdateUserError(null);
         try {
             dispatch(updateStart());
+            setUpdateUserError(null);
             const res = await fetch(`/api/user/update/${currentUser._id}`, {
                 method: "PUT",
                 headers: {
@@ -110,9 +192,10 @@ export default function DashProfile() {
                 body: JSON.stringify(formData),
             });
             const data = await res.json();
+            setUpdateUserError(null);
             if (!res.ok) {
+                setUpdateUserError(null);
                 dispatch(updateFailure(data.message));
-                setUpdateUserError(data.message);
             } else {
                 dispatch(updateSuccess(data));
                 setUpdateUserSuccess(
@@ -121,6 +204,7 @@ export default function DashProfile() {
             }
         } catch (error) {
             dispatch(updateFailure(error.message));
+            setUpdateUserError(error.message);
         }
     };
 
@@ -157,6 +241,13 @@ export default function DashProfile() {
             console.log(error.message);
         }
     };
+    // Limpiar el mensaje de error y éxito cuando el componente se desmonta o se navegue a otra página
+    useEffect(() => {
+        return () => {
+            setUpdateUserError(null);
+            setUpdateUserSuccess(null);
+        };
+    }, [navigate]);
 
     return (
         <div className="max-w-lg mx-auto p-3 w-full">
@@ -214,19 +305,44 @@ export default function DashProfile() {
                     defaultValue={currentUser.username}
                     onChange={handleChange}
                 />
-                <TextInput
-                    type="email"
-                    id="email"
-                    placeholder="Email"
-                    defaultValue={currentUser.email}
-                    onChange={handleChange}
-                />
-                <TextInput
-                    type="password"
-                    id="password"
-                    placeholder="Contraseña"
-                    onChange={handleChange}
-                />
+                {currentUser.isGoogleUser ? (
+                    <TextInput
+                        disabled
+                        type="text"
+                        id="email"
+                        placeholder="Email"
+                        defaultValue={currentUser.email}
+                    />
+                ) : (
+                    <TextInput
+                        type="email"
+                        id="email"
+                        placeholder="Email"
+                        defaultValue={currentUser.email}
+                        onChange={handleChange}
+                    />
+                )}
+                {currentUser.isGoogleUser ? (
+                    <TextInput
+                        disabled
+                        type="password"
+                        id="password"
+                        placeholder="**********"
+                    />
+                ) : (
+                    <TextInput
+                        type="password"
+                        id="password"
+                        placeholder="**********"
+                        onChange={handleChange}
+                    />
+                )}
+                {currentUser.isGoogleUser && (
+                    <Alert color="info">
+                        Los usuarios de Google no pueden actualizar su correo ni
+                        su contraseña, solo su nombre de usuario.
+                    </Alert>
+                )}
                 <Button
                     type="submit"
                     gradientDuoTone="purpleToPink"

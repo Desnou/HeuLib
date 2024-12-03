@@ -79,9 +79,10 @@ export default function DashPosts() {
                     <Table hoverable className="shadow-md">
                         <Table.Head>
                             <Table.HeadCell>Fecha actualizada</Table.HeadCell>
-                            <Table.HeadCell>Publicar imagen </Table.HeadCell>
-                            <Table.HeadCell>Publicar titulo</Table.HeadCell>
-                            <Table.HeadCell>Categoría</Table.HeadCell>
+                            <Table.HeadCell>Portada </Table.HeadCell>
+                            <Table.HeadCell>Título</Table.HeadCell>
+                            <Table.HeadCell>Ver</Table.HeadCell>
+                            <Table.HeadCell>Categorías</Table.HeadCell>
                             <Table.HeadCell>Borrar</Table.HeadCell>
                             <Table.HeadCell>
                                 <span>Editar</span>
@@ -110,6 +111,14 @@ export default function DashPosts() {
                                             to={`/post/${post.slug}`}
                                         >
                                             {post.title}
+                                        </Link>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        <Link
+                                            className="text-teal-500 hover:underline"
+                                            to={`/post/${post.slug}`}
+                                        >
+                                            <span>Ir a la publicación</span>
                                         </Link>
                                     </Table.Cell>
                                     <Table.Cell>{post.domains}</Table.Cell>

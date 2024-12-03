@@ -113,7 +113,7 @@ export default function CustomHeader() {
           ) : (
             <Link to="/sign-in">
               <Button gradientDuoTone="purpleToBlue" outline>
-                Sign In
+                Iniciar sesión
               </Button>
             </Link>
           )}
@@ -122,10 +122,10 @@ export default function CustomHeader() {
         </div>
         <Navbar.Collapse>
           <Navbar.Link active={path === "/"} as={"div"}>
-            <Link to="/">Home</Link>
+            <Link to="/">Inicio</Link>
           </Navbar.Link>
           <Navbar.Link active={path === "/about"} as={"div"}>
-            <Link to="/about">About</Link>
+            <Link to="/about">Acerca de</Link>
           </Navbar.Link>
         </Navbar.Collapse>
       </Navbar>

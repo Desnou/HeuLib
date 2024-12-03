@@ -101,6 +101,7 @@ export const google = async (req, res, next) => {
                 email: req.body.email,
                 password: hashedPassword,
                 avatar: req.body.photo,
+                isGoogleUser: true,
             });
             await newUser.save();
             const token = jwt.sign({ id: newUser._id, isAdmin: newUser.isAdmin }, process.env.JWT_SECRET);

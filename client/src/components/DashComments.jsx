@@ -88,7 +88,10 @@ export default function DashComments() {
                             <Table.HeadCell>
                                 Título de la publicación
                             </Table.HeadCell>
-                            <Table.HeadCell>Id del Usuario</Table.HeadCell>
+                            <Table.HeadCell>
+                                Ver publicación
+                            </Table.HeadCell>
+                            
                             <Table.HeadCell>Borrar</Table.HeadCell>
                         </Table.Head>
                         {comments.map((comment) => (
@@ -111,7 +114,15 @@ export default function DashComments() {
                                             {comment.titlePost}
                                         </Link>
                                     </Table.Cell>
-                                    <Table.Cell>{comment.userId}</Table.Cell>
+                                    <Table.Cell>
+                                        <Link
+                                            className="text-teal-500 hover:underline"
+                                            to={`/post/${comment.slugPost}`}
+                                        >
+                                            <span>Ir a la publicación</span>
+                                        </Link>
+                                    </Table.Cell>
+                                   
                                     <Table.Cell>
                                         <span
                                             onClick={() => {
