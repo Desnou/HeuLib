@@ -41,6 +41,9 @@ export default function Search() {
                 
             });
         }
+        if (domainsFromUrl) {
+            setSelectedDomain(domainsFromUrl.split(", "));
+        }
         if (!searchTermFromUrl) {
             setSidebarData((prevData) => ({
             ...prevData,
