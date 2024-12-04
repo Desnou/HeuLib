@@ -50,6 +50,10 @@ const postSchema = new mongoose.Schema(
             required: true,
             unique: true,
         },
+        isSuggested: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true }
 );

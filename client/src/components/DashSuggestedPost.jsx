@@ -1,25 +1,26 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Button, Modal, Table } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
-export default function PostSugeridos() {
+export default function DashSuggestedPost() {
     const { currentUser } = useSelector((state) => state.user);
     const [suggestedPosts, setSuggestedPosts] = useState([]);
     const [showMore, setShowMore] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [postIdToDelete, setPostIdToDelete] = useState("");
     const [postIdToAccept, setPostIdToAccept] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchSuggestedPosts = async () => {
             try {
-                const res = await fetch(`/api/post/getsuggestedposts`);
+                const res = await fetch(`/api/post/getposts?isSuggested=true`);
                 const data = await res.json();
                 if (res.ok) {
-                    setSuggestedPosts(data.suggestedposts);
-                    if (data.suggestedposts.length < 9) {
+                    setSuggestedPosts(data.posts);
+                    if (data.posts.length < 9) {
                         setShowMore(false);
                     }
                 }
@@ -36,12 +37,12 @@ export default function PostSugeridos() {
         const startIndex = suggestedPosts.length;
         try {
             const res = await fetch(
-                `/api/post/getsuggestedposts?startIndex=${startIndex}`
+                `/api/post/getposts?isSuggested=true&startIndex=${startIndex}`
             );
             const data = await res.json();
             if (res.ok) {
-                setSuggestedPosts((prev) => [...prev, ...data.suggestedposts]);
-                if (data.suggestedposts.length < 9) {
+                setSuggestedPosts((prev) => [...prev, ...data.posts]);
+                if (data.posts.length < 9) {
                     setShowMore(false);
                 }
             }
@@ -54,7 +55,7 @@ export default function PostSugeridos() {
         setShowModal(false);
         try {
             const res = await fetch(
-                `/api/post/deletesuggestedpost/${postIdToDelete}/${currentUser._id}`,
+                `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
                 {
                     method: "DELETE",
                 }
@@ -84,6 +85,7 @@ export default function PostSugeridos() {
                 setSuggestedPosts((prev) =>
                     prev.filter((post) => post._id !== postId)
                 );
+                navigate(`/post/${data.slug}`);
             }
         } catch (error) {
             console.log(error.message);
@@ -97,17 +99,15 @@ export default function PostSugeridos() {
                     <Table hoverable className="shadow-md">
                         <Table.Head>
                             <Table.HeadCell>Fecha actualizada</Table.HeadCell>
-                            <Table.HeadCell>Publicar imagen </Table.HeadCell>
-                            <Table.HeadCell>Publicar titulo</Table.HeadCell>
-                            <Table.HeadCell>Categoría</Table.HeadCell>
+                            <Table.HeadCell>Portada</Table.HeadCell>
+                            <Table.HeadCell>Título</Table.HeadCell>
+                            <Table.HeadCell>Categorías</Table.HeadCell>
                             <Table.HeadCell>Borrar</Table.HeadCell>
-                            <Table.HeadCell>
-                                <span>Aceptar</span>
-                            </Table.HeadCell>
+                            <Table.HeadCell>Aceptar</Table.HeadCell>
                         </Table.Head>
                         {suggestedPosts.map((post) => (
                             <Table.Body className="divide-y" key={post._id}>
-                                <Table.Row className="bg-white ">
+                                <Table.Row className="bg-white">
                                     <Table.Cell>
                                         {new Date(
                                             post.updatedAt
@@ -130,7 +130,7 @@ export default function PostSugeridos() {
                                             {post.title}
                                         </Link>
                                     </Table.Cell>
-                                    <Table.Cell>{post.category}</Table.Cell>
+                                    <Table.Cell>{post.domains}</Table.Cell>
                                     <Table.Cell>
                                         <span
                                             onClick={() => {

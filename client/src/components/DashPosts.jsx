@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Button, Modal, Table } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 export default function DashPosts() {
@@ -10,12 +10,12 @@ export default function DashPosts() {
     const [showMore, setShowMore] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [postIdToDelete, setPostIdToDelete] = useState("");
+    const navigate = useNavigate();
+
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const res = await fetch(
-                    `/api/post/getposts`
-                );
+                const res = await fetch(`/api/post/getposts?isSuggested=false`);
                 const data = await res.json();
                 if (res.ok) {
                     setUserPosts(data.posts);
@@ -27,16 +27,14 @@ export default function DashPosts() {
                 console.log(error.message);
             }
         };
-        if (currentUser.isAdmin) {
-            fetchPosts();
-        }
+        fetchPosts();
     }, [currentUser._id]);
 
     const handleShowMore = async () => {
         const startIndex = userPosts.length;
         try {
             const res = await fetch(
-                `/api/post/getposts?&startIndex=${startIndex}`
+                `/api/post/getposts?isSuggested=false&startIndex=${startIndex}`
             );
             const data = await res.json();
             if (res.ok) {
@@ -74,12 +72,12 @@ export default function DashPosts() {
 
     return (
         <div className="table-auto overflow-x-auto md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300">
-            {currentUser.isAdmin && userPosts.length > 0 ? (
+            {userPosts.length > 0 ? (
                 <>
                     <Table hoverable className="shadow-md">
                         <Table.Head>
                             <Table.HeadCell>Fecha actualizada</Table.HeadCell>
-                            <Table.HeadCell>Portada </Table.HeadCell>
+                            <Table.HeadCell>Portada</Table.HeadCell>
                             <Table.HeadCell>Título</Table.HeadCell>
                             <Table.HeadCell>Ver</Table.HeadCell>
                             <Table.HeadCell>Categorías</Table.HeadCell>
@@ -90,7 +88,7 @@ export default function DashPosts() {
                         </Table.Head>
                         {userPosts.map((post) => (
                             <Table.Body className="divide-y" key={post._id}>
-                                <Table.Row className="bg-white ">
+                                <Table.Row className="bg-white">
                                     <Table.Cell>
                                         {new Date(
                                             post.updatedAt
@@ -115,15 +113,15 @@ export default function DashPosts() {
                                     </Table.Cell>
                                     <Table.Cell>
                                         <Link
-                                            className="text-teal-500 hover:underline"
+                                            className="font-medium text-teal-500 hover:underline"
                                             to={`/post/${post.slug}`}
                                         >
-                                            <span>Ir a la publicación</span>
+                                            Ver
                                         </Link>
                                     </Table.Cell>
                                     <Table.Cell>{post.domains}</Table.Cell>
                                     <Table.Cell>
-                                    <span
+                                        <span
                                             onClick={() => {
                                                 setShowModal(true);
                                                 setPostIdToDelete(post._id);
@@ -135,10 +133,10 @@ export default function DashPosts() {
                                     </Table.Cell>
                                     <Table.Cell>
                                         <Link
-                                            className="text-teal-500 hover:underline"
+                                            className="font-medium text-blue-500 hover:underline"
                                             to={`/update-post/${post._id}`}
                                         >
-                                            <span>Editar</span>
+                                            Editar
                                         </Link>
                                     </Table.Cell>
                                 </Table.Row>
@@ -147,16 +145,16 @@ export default function DashPosts() {
                     </Table>
                     {showMore && (
                         <button
-                        onClick={handleShowMore}
-                        className='w-full text-teal-500 self-center text-sm py-7'
-                      >
-                        Ver más
-                      </button>
+                            onClick={handleShowMore}
+                            className="w-full text-teal-500 self-center text-sm py-7"
+                        >
+                            Ver más
+                        </button>
                     )}
-                  </>
-                ) : (
-                  <p>No hay publicaciones aun!</p>
-                )}
+                </>
+            ) : (
+                <p>No hay publicaciones aún</p>
+            )}
             <Modal
                 show={showModal}
                 onClose={() => setShowModal(false)}

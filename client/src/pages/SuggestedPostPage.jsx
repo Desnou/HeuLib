@@ -6,7 +6,7 @@ import CommentSection from "../components/CommentSection";
 import PostCard from "../components/PostCard";
 import { useSelector } from "react-redux";
 
-export default function PostPage() {
+export default function SuggestedPostPage() {
   const { postSlug } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
@@ -28,8 +28,8 @@ export default function PostPage() {
         }
         if (res.ok) {
           const fetchedPost = data.posts[0];
-          if (fetchedPost.isSuggested && !currentUser.isAdmin) {
-            navigate("/"); // Redirigir a home si el post es sugerido y el usuario no es admin
+          if (!fetchedPost.isSuggested || !currentUser.isAdmin) {
+            navigate("/"); // Redirigir a home si el post no es sugerido o el usuario no es admin
             return;
           }
           setPost(fetchedPost);

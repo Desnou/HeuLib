@@ -1,15 +1,14 @@
 import {
     Alert,
     Button,
-    Datepicker,
-    Dropdown,
+    Checkbox,
     FileInput,
+    Label,
     Select,
     TextInput,
 } from "flowbite-react";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import Selection from "react-select";   
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -21,25 +20,34 @@ import {
     uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
+import { useSelector } from "react-redux";
 
-const options = [
-    { value: "games", label: "Games" },
-    { value: "mobile", label: "Mobile" },
-    { value: "systems", label: "Systems" },
-    { value: "websites", label: "Websites" },
-    { value: "applications", label: "Applications" },
-    { value: "interfaces", label: "Interfaces" },
-    { value: "computers", label: "Computers" },
-    { value: "learning", label: "Learning" },
-];
-export default function SugerirPost() {
+export default function DashSuggestPost() {
     const [file, setFile] = useState(null);
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
     const [formData, setFormData] = useState({});
     const navigate = useNavigate();
-    const [selectedOptions, setSelectedOptions] = useState([]);
+    const { currentUser } = useSelector((state) => state.user);
     const [publishError, setPublishError] = useState(null);
+    const [selectedDomain, setSelectedDomain] = useState([]);
+    console.log(formData);
+
+    const handleDomainChange = (e) => {
+        const { id, checked } = e.target;
+        let updatedDomains;
+        if (checked) {
+            updatedDomains = [...selectedDomain, id];
+        } else {
+            updatedDomains = selectedDomain.filter((domain) => domain !== id);
+        }
+        updatedDomains.sort();
+        setSelectedDomain(updatedDomains);
+        setFormData({
+            ...formData,
+            domains: updatedDomains.join(", "),
+        });
+    };
 
     const handleUploadImage = async () => {
         try {
@@ -80,33 +88,36 @@ export default function SugerirPost() {
         }
     };
 
-    const handleCategoryChange = (selectedOption) => {
-        setSelectedOptions(selectedOption);
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        console.log(formData); // Verificar el contenido de formData antes de enviarlo
+        if (selectedDomain.length === 0) {
+            setPublishError("Debe seleccionar al menos una categoría.");
+            return;
+        }
         try {
             const res = await fetch("/api/post/suggestpost", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData), // Enviar los datos del formulario
             });
             const data = await res.json();
-            if (res.ok) {
-                setPublishError(null);
-                
-                navigate("/dashboard?tab=dash");
-            } 
             if (!res.ok) {
                 setPublishError(data.message);
                 return;
             }
+            if (res.ok) {
+                setPublishError(null);
+                if (currentUser.isAdmin) {
+                    navigate(`/post/${data.slug}`);
+                } else {
+                    navigate(`/`);
+                }
+            }
         } catch (error) {
-            setPublishError(error.message);
+            setPublishError("Error al sugerir la publicación");
         }
     };
 
@@ -117,47 +128,99 @@ export default function SugerirPost() {
             </h1>
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4 sm:flex-col ">
-                    <TextInput
-                        type="text"
-                        placeholder="Título"
-                        required
-                        id="title"
-                        className="flex-1"
-                        onChange={(e) =>
-                            setFormData({ ...formData, title: e.target.value })
-                        }
-                    />
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="title">
+                            Ingresa el título de la publicación
+                        </Label>
+                        <TextInput
+                            type="text"
+                            placeholder="Título"
+                            required
+                            id="title"
+                            className="flex-1"
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    title: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="author">
+                            Ingresa el nombre del autor(es)
+                        </Label>
+                        <TextInput
+                            type="text"
+                            placeholder="Autor"
+                            required
+                            id="author"
+                            className=""
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    author: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="domains">
+                            Selecciona una o más categorías
+                        </Label>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="juegos"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="juegos">Juegos</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="movil"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="movil">Movil</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="sistemas"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="sistemas">Sistemas</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="plataformas-web"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="plataformas-web">Plataformas Web</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="interfaces"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="interfaces">Interfaces</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="computadoras"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="Computadoras">Computadoras</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="aprendizaje"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="aprendizaje">Aprendizaje</Label>
+                        </div>
+                    </div>
 
-<Selection
-                        placeholder="Selecciona una categoría"
-                        type="string"
-                        id="category"
-                        options={options}
-                        value={selectedOptions}
-                        onChange={(selectedOption) => {
-                            handleCategoryChange(selectedOption);
-                            setFormData({
-                                ...formData,
-                                category: selectedOption
-                                    .map((option) => option.value)
-                                    .join(", "),
-                            });
-                        }}
-                        isMulti
-                        isSearchable={false}
-                        closeMenuOnSelect={false}
-                    />
-                    <TextInput
-                        type="text"
-                        placeholder="Autor"
-                        required
-                        id="author"
-                        className=""
-                        onChange={(e) =>
-                            setFormData({ ...formData, author: e.target.value })
-                        }
-                    />
-                    <div className="flex flex-auto gap-4">
+                    <div className="flex flex-col gap-4">
+                        <Label htmlFor="">Estado de validación</Label>
                         <Select
                             id="hasValidation"
                             placeholder="Selecciona una opción"
@@ -170,36 +233,68 @@ export default function SugerirPost() {
                             }
                         >
                             <option value="uncategorized">
-                                Tiene validacion?
+                                Tiene validación?
                             </option>
                             <option value="si">Si</option>
                             <option value="no">No</option>
                             <option value="parcial">Parcial</option>
                         </Select>
-                        <Select
-                            placeholder="Selecciona una opción"
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        <Label>Ingresa DOI o enlace de la publicación de origen</Label>
+                        <TextInput
+                            type="url"
+                            placeholder="Si es mas de un enlace separarlos por comas"
                             required
-                            id="heuristicCount"
+                            id="doi"
                             onChange={(e) =>
                                 setFormData({
                                     ...formData,
-                                    heuristicCount: e.target.value,
+                                    doi: e.target.value,
                                 })
                             }
-                        >
-                            <option value="uncategorized">
-                                Cantidad de heuristicas
-                            </option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                        </Select>
+                        />
                     </div>
+                    <div className="flex flex-col  gap-2">
+                        <Label htmlFor="heuristicNumber">Cantidad de heurísticas</Label>
+                        <TextInput
+                            className="w-fit"
+                            type="number"
+                            required
+                            id="heuristicNumber"
+                            min='1'
+                            max='200'
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    heuristicNumber: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        <Label htmlFor="heuristicList">Ingresa el listado de heurísticas</Label>
+                        <ReactQuill
+                            theme="snow"
+                            placeholder="Por favor ingresa el listado de heurísticas en forma de listas o enumeradas
+
+                            "
+                            className="h-30 mb-12"
+                            required
+                            onChange={(value) =>
+                                setFormData((prevFormData) => ({
+                                    ...prevFormData,
+                                    heuristicList: value,
+                                }))
+                            }
+                        />
+                    </div>
+                    
                 </div>
+                <div className="flex flex-col gap-3">
+                <Label htmlFor="image">Selecciona una imagen para la portada</Label>
                 <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
+                    
                     <FileInput
                         type="file"
                         accept="image/*"
@@ -225,6 +320,7 @@ export default function SugerirPost() {
                         )}
                     </Button>
                 </div>
+                </div>
                 {imageUploadError && (
                     <Alert color="failure">{imageUploadError}</Alert>
                 )}
@@ -235,23 +331,32 @@ export default function SugerirPost() {
                         className="w-full h-72 object-cover"
                     />
                 )}
+                <div className="flex flex-col gap-4">
+                <Label htmlFor="content">Contenido de la publicación</Label>
                 <ReactQuill
                     theme="snow"
                     placeholder="Escribe algo..."
                     className="h-72 mb-12"
                     required
                     onChange={(value) =>
-                        setFormData((prevFormData) => ({ ...prevFormData, content: value }))
+                        setFormData((prevFormData) => ({
+                            ...prevFormData,
+                            content: value,
+                        }))
                     }
                 />
+                </div>
                 <Button type="submit" gradientDuoTone="purpleToBlue">
-                    Sugerir
+                    Sugerir Publicación
                 </Button>
                 {publishError && (
                     <Alert className="mt-5" color="failure">
                         {publishError}
                     </Alert>
                 )}
+                <Alert color="info" className="mt-5">   
+                    Recuerda que al sugerir una publicación, esta estará bajo revisión de un administrador antes de ser publicada.
+                </Alert>
             </form>
         </div>
     );
