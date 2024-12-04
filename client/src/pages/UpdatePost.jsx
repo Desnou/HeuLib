@@ -35,7 +35,7 @@ export default function UpdatePost() {
     const [selectedDomain, setSelectedDomain] = useState([]);
     const { postId } = useParams();
     const { currentUser } = useSelector((state) => state.user);
-    console.log(formData);
+    
 
     useEffect(() => {
         try {
@@ -310,19 +310,20 @@ export default function UpdatePost() {
                         />
                     </div>
                     <div className="flex flex-col gap-4">
-                        <Label htmlFor="heuristicList">
-                            Ingresa el listado de heurísticas
-                        </Label>
-                        <Textarea
-                            type="text"
+                        <Label htmlFor="heuristicList">Ingresa el listado de heurísticas</Label>
+                        <ReactQuill
+                            theme="snow"
+                            placeholder="Por favor ingresa el listado de heurísticas en forma de listas o enumeradas
+
+                            "
+                            className="h-30 mb-12"
                             required
-                            id="heuristicList"
                             value={formData.heuristicList}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    heuristicList: e.target.value,
-                                })
+                            onChange={(value) =>
+                                setFormData((prevFormData) => ({
+                                    ...prevFormData,
+                                    heuristicList: value,
+                                }))
                             }
                         />
                     </div>

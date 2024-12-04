@@ -279,7 +279,7 @@ export default function CreatePost() {
                             onChange={(value) =>
                                 setFormData((prevFormData) => ({
                                     ...prevFormData,
-                                    heuristicList: `<ul>${value.split('\n').map(item => `<li>${item}</li>`).join('')}</ul>`,
+                                    heuristicList: value,
                                 }))
                             }
                         />

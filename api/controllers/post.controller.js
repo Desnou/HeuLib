@@ -47,6 +47,7 @@ export const getposts = async (req, res, next) => {
         const sortDirection = req.query.order === 'asc' ? 1 : -1;
         const posts = await Post.find({
             ...(req.query.userId && { userId: req.query.userId }),
+            ...(req.query.heuristicNumber && { heuristicNumber: req.query.heuristicNumber }),
             ...(req.query.domains && {
             domains: { $regex: new RegExp(req.query.domains.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), "i") },
             }),
