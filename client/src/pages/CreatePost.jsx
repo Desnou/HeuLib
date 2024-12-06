@@ -193,6 +193,13 @@ export default function CreatePost() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
+                                id="aplicaciones"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="aplicaciones">Aplicaciones</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
                                 id="interfaces"
                                 onChange={handleDomainChange}
                             />

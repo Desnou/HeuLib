@@ -198,6 +198,13 @@ export default function DashSuggestPost() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
+                                id="aplicaciones"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="plataformas-web">Aplicaciones</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
                                 id="interfaces"
                                 onChange={handleDomainChange}
                             />

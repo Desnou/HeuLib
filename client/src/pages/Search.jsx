@@ -238,6 +238,10 @@ const handleDomainChange = (e) => {
                             <Label htmlFor="plataformas-web">Plataformas Web</Label>
                         </div>
                         <div className="flex items-center gap-2">
+                            <Checkbox id="aplicaciones" onChange={handleDomainChange} checked={selectedDomain.includes("aplicaciones")} />
+                            <Label htmlFor="plataformas-web">Aplicaciones</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
                             <Checkbox id="interfaces" onChange={handleDomainChange} checked={selectedDomain.includes("interfaces")} />
                             <Label htmlFor="interfaces">Interfaces</Label>
                         </div>

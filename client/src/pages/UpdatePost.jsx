@@ -222,7 +222,14 @@ export default function UpdatePost() {
                                 onChange={handleDomainChange}
                                 checked={selectedDomain.includes("plataformas-web")}
                             />
-                            <Label htmlFor="plataformas-web">Sitios Web</Label>
+                            <Label htmlFor="plataformas-web">Plataformas Web</Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="aplicaciones"
+                                onChange={handleDomainChange}
+                            />
+                            <Label htmlFor="aplicaciones">Aplicaciones</Label>
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox
