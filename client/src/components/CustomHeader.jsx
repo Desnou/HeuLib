@@ -26,11 +26,12 @@ export default function CustomHeader() {
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
-        const searchTermFromUrl = urlParams.get("searchTerm");
-        const sortFromUrl = urlParams.get("sort");
-        const domainsFromUrl = urlParams.get("domains");
-        const authorFromUrl = urlParams.get("author");
-        const hasValidationFromUrl = urlParams.get("hasValidation");
+        const sortFromUrl = urlParams.get("sort") || "";
+        const domainsFromUrl = urlParams.get("domains") || "";
+        const authorFromUrl = urlParams.get("author") || "";
+        const hasValidationFromUrl = urlParams.get("hasValidation") || "";
+        const searchTermFromUrl = urlParams.get("searchTerm") || "";
+        
 
         if (searchTermFromUrl) setSearchTerm(searchTermFromUrl);
         if (sortFromUrl) setSort(sortFromUrl);
@@ -57,6 +58,11 @@ export default function CustomHeader() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        // setSearchTerm("");
+        // setSort("");
+        // setDomains("");
+        // setAuthor("");
+        // setHasValidation("");
         const urlParams = new URLSearchParams(location.search);
         urlParams.set("searchTerm", searchTerm || "");
         urlParams.set("sort", sort || "");

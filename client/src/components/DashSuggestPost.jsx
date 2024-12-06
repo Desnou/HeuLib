@@ -110,8 +110,8 @@ export default function DashSuggestPost() {
             }
             if (res.ok) {
                 setPublishError(null);
-                if (currentUser.isAdmin) {
-                    navigate(`/post/${data.slug}`);
+                if (currentUser && currentUser.isAdmin) {
+                    navigate(`/suggested-post/${data.slug}`);
                 } else {
                     navigate(`/`);
                 }

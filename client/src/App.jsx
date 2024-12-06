@@ -10,6 +10,7 @@ import PrivateRouteAdmin from "./components/PrivateRouteAdmin";
 import CreatePost from "./pages/CreatePost";
 import UpdatePost from "./pages/UpdatePost";
 import PostPage from "./pages/PostPage";
+import SuggestedPostPage from "./pages/SuggestedPostPage"; // Importa el componente SuggestedPostPage
 import ScrollToTop from "./components/ScrollToTop";
 import Search from "./pages/Search";
 import DashSuggestPost from "./components/DashSuggestPost";
@@ -36,6 +37,7 @@ export default function App() {
                     <Route path="/update-post/:postId" element={<UpdatePost />} />
                     <Route path="/dashboard/suggested-posts" element={<DashSuggestedPost />} />
                     <Route path="/dashboard/posts" element={<DashPosts />} />
+                    <Route path="/suggested-post/:postSlug" element={<SuggestedPostPage />} /> {/* Añade la ruta para SuggestedPostPage */}
                 </Route>
                 <Route path="/post/:postSlug" element={<PostPage />} />
             </Routes>

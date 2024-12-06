@@ -52,7 +52,7 @@ export const getposts = async (req, res, next) => {
             ...(req.query.slug && { slug: req.query.slug }),
             ...(req.query.postId && { _id: req.query.postId }),
             ...(req.query.author && {
-                author: { $regex: new RegExp(req.query.author.normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(",").map(a => a.trim()).join("|"), "i") },
+            author: { $regex: new RegExp(req.query.author.split(",").map(a => a.trim()).join("|").normalize("NFD").replace(/[\u0300-\u036f]/g, ""), "i") },
             }),
             ...(req.query.hasValidation && { hasValidation: req.query.hasValidation }),
             ...(req.query.searchTerm && {

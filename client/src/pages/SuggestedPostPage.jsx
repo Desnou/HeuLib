@@ -1,9 +1,6 @@
 import { Button, Spinner } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import CallToAction from "../components/CallToAction";
-import CommentSection from "../components/CommentSection";
-import PostCard from "../components/PostCard";
 import { useSelector } from "react-redux";
 
 export default function SuggestedPostPage() {
@@ -13,51 +10,67 @@ export default function SuggestedPostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
-  const [recentPosts, setRecentPosts] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
+        const res = await fetch(`/api/post/getsuggestedposts?slug=${postSlug}`);
         const data = await res.json();
         if (!res.ok) {
           setError(true);
           setLoading(false);
           return;
         }
-        if (res.ok) {
-          const fetchedPost = data.posts[0];
-          if (!fetchedPost.isSuggested || !currentUser.isAdmin) {
-            navigate("/"); // Redirigir a home si el post no es sugerido o el usuario no es admin
-            return;
-          }
-          setPost(fetchedPost);
-          setLoading(false);
-          setError(false);
+        const fetchedPost = data.suggestedposts.find(post => post.slug === postSlug);
+        if (!fetchedPost || !fetchedPost.isSuggested || !currentUser.isAdmin) {
+          navigate("/"); // Redirigir a home si el post no es sugerido o el usuario no es admin
+          return;
         }
+        setPost(fetchedPost);
+        setLoading(false);
+        setError(false);
       } catch (error) {
         setError(true);
         setLoading(false);
       }
     };
-    fetchPost();
+    if (currentUser) {
+      fetchPost();
+    }
   }, [postSlug, currentUser, navigate]);
 
-  useEffect(() => {
+  const handleAcceptPost = async () => {
     try {
-      const fetchRecentPosts = async () => {
-        const res = await fetch(`/api/post/getposts?limit=3`);
-        const data = await res.json();
-        if (res.ok) {
-          setRecentPosts(data.posts);
-        }
-      };
-      fetchRecentPosts();
+      const res = await fetch(`/api/post/acceptsuggestedpost/${post._id}`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        navigate(`/post/${data.slug}`);
+      }
     } catch (error) {
       console.log(error.message);
     }
-  }, []);
+  };
+
+  const handleDeletePost = async () => {
+    try {
+      const res = await fetch(`/api/post/deletesuggestedpost/${post._id}/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        navigate("/dashboard?tab=suggested-posts");
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   if (loading)
     return (
@@ -75,7 +88,10 @@ export default function SuggestedPostPage() {
 
   return (
     <main className="p-3 flex flex-col max-w-6xl mx-auto min-h-screen">
-      <h1 className="text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl">
+      <h2 className="text-xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-2xl">
+        Estas revisando una publicación sugerida
+      </h2>
+      <h1 className="text-3xl mt-2 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl">
         {post && post.title}
       </h1>
       <div className="flex flex-wrap justify-center border-b border-slate-500">
@@ -156,20 +172,15 @@ export default function SuggestedPostPage() {
         <h2 className="text-2xl font-semibold mb-4">Descripción del conjunto</h2>
         <div className="ql-editor" dangerouslySetInnerHTML={{ __html: post && post.content }} />
       </div>
-      <div className="max-w-4xl mx-auto w-full">
-        <CallToAction />
-      </div>
-      <CommentSection
-        postId={post._id}
-        slugPost={post.slug}
-        titlePost={post.title}
-      />
-      <div className="flex flex-col justify-center items-center mb-5">
-        <h1 className="text-xl mt-5">Publicaciones Recientes</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5 justify-center">
-          {recentPosts &&
-            recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
-        </div>
+    <div className="border-t border-slate-500 mt-10"></div>
+      
+      <div className="flex justify-center gap-4 mt-10">
+        <Button color="failure" onClick={handleDeletePost}>
+          Rechazar publicación
+        </Button>
+        <Button color="success" onClick={handleAcceptPost}>
+          Aceptar publicación
+        </Button>
       </div>
     </main>
   );

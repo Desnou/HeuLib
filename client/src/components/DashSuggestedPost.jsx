@@ -101,6 +101,7 @@ export default function DashSuggestedPost() {
                             <Table.HeadCell>Fecha actualizada</Table.HeadCell>
                             <Table.HeadCell>Portada</Table.HeadCell>
                             <Table.HeadCell>Título</Table.HeadCell>
+                            <Table.HeadCell>Ver</Table.HeadCell>
                             <Table.HeadCell>Categorías</Table.HeadCell>
                             <Table.HeadCell>Borrar</Table.HeadCell>
                             <Table.HeadCell>Aceptar</Table.HeadCell>
@@ -114,7 +115,7 @@ export default function DashSuggestedPost() {
                                         ).toLocaleDateString()}
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <Link to={`/post/${post.slug}`}>
+                                        <Link to={`/suggested-post/${post.slug}`}>
                                             <img
                                                 src={post.image}
                                                 alt={post.title}
@@ -125,9 +126,17 @@ export default function DashSuggestedPost() {
                                     <Table.Cell>
                                         <Link
                                             className="font-medium text-gray-900"
-                                            to={`/post/${post.slug}`}
+                                            to={`/suggested-post/${post.slug}`}
                                         >
                                             {post.title}
+                                        </Link>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        <Link
+                                            className="font-medium text-teal-500 hover:underline"
+                                            to={`/suggested-post/${post.slug}`}
+                                        >
+                                            Ver
                                         </Link>
                                     </Table.Cell>
                                     <Table.Cell>{post.domains}</Table.Cell>
